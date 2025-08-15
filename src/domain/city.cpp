@@ -1,4 +1,4 @@
-#include "../include/city_structure.hpp"
+#include "../include/domain/city.hpp"
 #include <string>
 #include <algorithm>
 #include <cctype>
