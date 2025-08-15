@@ -1,9 +1,10 @@
+#pragma once
 #include <string>
 #include <utility>
 
 enum c_status {Friendly = 1, Neutral, Enemy};
 
-class city {
+class City {
     private:
         std::string country; // Country code (3 letters, uppercase)
         std::pair<int, int> coordinates;
@@ -12,10 +13,10 @@ class city {
 
     public:
         // Default constructor
-        city();
+        City();
 
         // Constructor with parameters
-        city(const std::string& c, const std::pair<int, int>& coord, const std::string& status, int spies);
+        City(const std::string& c, const std::pair<int, int>& coord, const std::string& status, int spies);
 
         // Getter and Setter
         std::string get_country() const;
