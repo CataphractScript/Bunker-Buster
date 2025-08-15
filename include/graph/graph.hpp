@@ -5,7 +5,7 @@
 #include <vector>
 #include <cmath>
 #include <stdexcept>
-#include "city.hpp"
+#include "../../include/domain/city.hpp"
 
 class Graph
 {
