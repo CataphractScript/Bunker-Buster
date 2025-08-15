@@ -10,13 +10,14 @@ class City {
         std::pair<int, int> coordinates;
         c_status city_status;
         int spy_count;
+        int defense_count;
 
     public:
         // Default constructor
         City();
 
         // Constructor with parameters
-        City(const std::string& c, const std::pair<int, int>& coord, const std::string& status, int spies);
+        City(const std::string& c, const std::pair<int, int>& coord, const std::string& status, int spies, int def);
 
         // Getter and Setter
         std::string get_country() const;
@@ -31,4 +32,7 @@ class City {
 
         int get_spy_count() const;
         void set_spy_count(const int& newSpy_count);
+
+        int get_defense_count() const;
+        void set_defense_count(const int& newDefense_count);
 };
