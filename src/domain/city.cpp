@@ -3,14 +3,15 @@
 #include <cctype>
 
 // Default constructor
-City::City() : country(""), coordinates({ 0,0 }), city_status(Neutral), spy_count(0) {}
+City::City() : country(""), coordinates({ 0,0 }), city_status(Neutral), spy_count(0), defense_count(0) {}
 
 // Constructor with validation via setters
-City::City(const std::string& c, const std::pair<int, int>& coord, const std::string& status, int spies) {
+City::City(const std::string& c, const std::pair<int, int>& coord, const std::string& status, int spies, int def) {
     set_country(c);
     set_coordinates(coord);
     set_city_status(status);
     set_spy_count(spies);
+    set_defense_count(def);
 }
 
 
@@ -65,4 +66,13 @@ void City::set_spy_count(const int& newSpy_count) {
     if (newSpy_count >= 0) {
         spy_count = newSpy_count;
     }
+}
+
+
+int City::get_defense_count() const {
+    return defense_count;
+}
+
+void City::set_defense_count(const int& newDefense_count) {
+    defense_count = newDefense_count;
 }
