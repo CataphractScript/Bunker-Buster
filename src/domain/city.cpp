@@ -1,5 +1,4 @@
 #include "../include/domain/city.hpp"
-#include <string>
 #include <algorithm>
 #include <cctype>
 
@@ -15,7 +14,7 @@ city::city(const std::string& c, const std::pair<int, int>& coord, const std::st
 }
 
 
-std::string city::get_country() { return country; }
+std::string city::get_country() const { return country; }
 
 void city::set_country(const std::string& newCountry) {
     if (!newCountry.empty() && newCountry.size() == 3) {
@@ -26,18 +25,18 @@ void city::set_country(const std::string& newCountry) {
 }
 
 
-std::pair<int, int> city::get_coordinates() { return coordinates; }
+std::pair<int, int> city::get_coordinates() const { return coordinates; }
 
 void city::set_coordinates(const std::pair<int, int>& newCoordinates) {
-    if (newCoordinates.first > 0 || newCoordinates.second > 0) {
-        coordinates = newCoordinates;
-    }
+    coordinates = newCoordinates;
 }
 
 
-int city::get_city_status_int() { return static_cast<int>(city_status); } // static_cast: Modern C++ cast for safe and explicit type conversion
+int city::get_city_status_int() const {
+    return static_cast<int>(city_status); // static_cast: Modern C++ cast for safe and explicit type conversion
+}
 
-std::string city::get_city_status_str() {
+std::string city::get_city_status_str() const {
     switch (city_status) {
     case Friendly: return "Friendly";
     case Neutral: return "Neutral";
@@ -55,14 +54,15 @@ void city::set_city_status(const std::string& newCity_status) {
         if (lower == "friendly") city_status = Friendly;
         else if (lower == "neutral") city_status = Neutral;
         else if (lower == "enemy") city_status = Enemy;
+        else city_status = Neutral; // default if invalid
     }
 }
 
 
-int city::get_spy_count() { return spy_count; }
+int city::get_spy_count() const { return spy_count; }
 
 void city::set_spy_count(const int& newSpy_count) {
-    if (!country.empty()) {
+    if (newSpy_count >= 0) {
         spy_count = newSpy_count;
     }
 }
