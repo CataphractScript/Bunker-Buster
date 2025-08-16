@@ -9,7 +9,7 @@ class City {
         std::string country; // Country code (3 letters, uppercase)
         std::pair<int, int> coordinates;
         c_status city_status;
-        int spy_count;
+        bool has_spy;
         int defense_count;
 
     public:
@@ -17,7 +17,7 @@ class City {
         City();
 
         // Constructor with parameters
-        City(const std::string& c, const std::pair<int, int>& coord, const std::string& status, int spies, int def);
+        City(const std::string& c, const std::pair<int, int>& coord, const std::string& status, int spy, int def);
 
         // Getter and Setter
         std::string get_country() const;
@@ -30,8 +30,8 @@ class City {
         std::string get_city_status_str() const;
         void set_city_status(const std::string& newCity_status);
 
-        int get_spy_count() const;
-        void set_spy_count(const int& newSpy_count);
+        int get_has_spy() const;
+        void set_has_spy(const bool& newSpy);
 
         int get_defense_count() const;
         void set_defense_count(const int& newDefense_count);
