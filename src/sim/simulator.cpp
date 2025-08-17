@@ -1,10 +1,10 @@
 #include "simulation.hpp"
 
 // Constructor initializes total_damage to 0
-simulation::simulation() : total_damage(0) {}
+Simulator::Simulator() : total_damage(0) {}
 
 // Run the scenario corresponding to scenario_num
-void simulation::run(int scenario_num) 
+void Simulator::run(int scenario_num) 
 {
     switch (scenario_num)
     {
@@ -25,12 +25,12 @@ void simulation::run(int scenario_num)
     std::cout << "Total damage: " << total_damage << std::endl;
 }
 
-void simulation::scenario_1() 
+void Simulator::scenario_1() 
 {
     /* code */
 }
 
-void simulation::scenario_2() 
+void Simulator::scenario_2() 
 {
     /* code */
 }
