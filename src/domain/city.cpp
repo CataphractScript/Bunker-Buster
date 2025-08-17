@@ -1,6 +1,9 @@
 #include "../../include/domain/city.hpp"
+#include "../../include/domain/missile.hpp"
+
 #include <algorithm>
 #include <cctype>
+#include <vector>
 
 // Default constructor
 City::City() : country(""), coordinates({ 0,0 }), city_status(Neutral), has_spy(false), defense_count(0) {}
@@ -60,5 +63,5 @@ void City::set_has_spy(const bool& newSpy) { has_spy = newSpy; }
 int City::get_defense_count() const { return defense_count; }
 void City::set_defense_count(const int& newDefense_count) { defense_count = newDefense_count; }
 
-int City::get_missile_count() const { return missile_count; }
-void City::set_missile_count(const int& newMissile_count) { missile_count = newMissile_count; }
+std::vector<Missile> City::get_missiles() const { return missiles; }
+void City::set_missiles(const std::vector<Missile>& newMissiles) { missiles = newMissiles; }

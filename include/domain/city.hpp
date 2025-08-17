@@ -1,4 +1,7 @@
 #pragma once
+
+#include "missile.hpp"
+
 #include <string>
 #include <utility>
 
@@ -11,7 +14,7 @@ class City {
         c_status city_status;
         bool has_spy;
         int defense_count;
-        int missile_count;
+        std::vector<Missile> missiles;
 
     public:
         // Default constructor
@@ -39,4 +42,7 @@ class City {
 
         int get_missile_count() const;
         void set_missile_count(const int& newMissile_count);
+
+        std::vector<Missile> get_missiles() const;
+        void set_missiles(const std::vector<Missile>& newMissiles);
 };
