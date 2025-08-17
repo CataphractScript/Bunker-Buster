@@ -11,6 +11,7 @@ class City {
         c_status city_status;
         bool has_spy;
         int defense_count;
+        int missile_count;
 
     public:
         // Default constructor
@@ -19,7 +20,7 @@ class City {
         // Constructor with parameters
         City(const std::string& c, const std::pair<int, int>& coord, const std::string& status, int spy, int def);
 
-        // Getter and Setter
+        // Getters and setters
         std::string get_country() const;
         void set_country(const std::string& newCountry);
 
@@ -35,4 +36,7 @@ class City {
 
         int get_defense_count() const;
         void set_defense_count(const int& newDefense_count);
+
+        int get_missile_count() const;
+        void set_missile_count(const int& newMissile_count);
 };

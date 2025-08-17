@@ -18,7 +18,7 @@ public:
     // Constructor initializes total_damage to zero
     Simulator();
 
-    // Getter and setter
+    // Getters and setters
     Graph get_graph() const;
     void set_graph(const Graph& g);
 
