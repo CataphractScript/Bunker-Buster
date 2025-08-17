@@ -14,7 +14,6 @@ City::City(const std::string& c, const std::pair<int, int>& coord, const std::st
     set_defense_count(def);
 }
 
-
 std::string City::get_country() const { return country; }
 
 void City::set_country(const std::string& newCountry) {
@@ -25,13 +24,11 @@ void City::set_country(const std::string& newCountry) {
     }
 }
 
-
 std::pair<int, int> City::get_coordinates() const { return coordinates; }
 
 void City::set_coordinates(const std::pair<int, int>& newCoordinates) {
     coordinates = newCoordinates;
 }
-
 
 int City::get_city_status_int() const {
     return static_cast<int>(city_status); // static_cast: Modern C++ cast for safe and explicit type conversion
@@ -59,13 +56,11 @@ void City::set_city_status(const std::string& newCity_status) {
     }
 }
 
-
 int City::get_has_spy() const { return has_spy; }
 
 void City::set_has_spy(const bool& newSpy) {
     has_spy = newSpy;
 }
-
 
 int City::get_defense_count() const {
     return defense_count;

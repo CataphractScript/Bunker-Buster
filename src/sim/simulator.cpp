@@ -1,7 +1,18 @@
-#include "simulation.hpp"
+#include "../../include/sim/simulator.hpp"
+#include "../../include/domain/city.hpp"
+#include "../../include/domain/missile.hpp"
+#include "../../include/graph/graph.hpp"
 
 // Constructor initializes total_damage to 0
 Simulator::Simulator() : total_damage(0) {}
+
+Graph Simulator::get_graph() {
+    return graph;
+}
+
+void Simulator::set_graph(const Graph& g) {
+    graph = g;
+}
 
 // Run the scenario corresponding to scenario_num
 void Simulator::run(int scenario_num) 
