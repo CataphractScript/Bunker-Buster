@@ -10,12 +10,15 @@
 class Graph
 {
 private:
-    std::unordered_map<int, City> cities;        // city_id → city object
+    std::unordered_map<int, City> friendly_cities;
+    std::unordered_map<int, City> enemy_cities;
+    std::unordered_map<int, City> neutral_cities;
+
     std::vector<std::vector<double>> adj_matrix; // distance matrix
     int next_id = 0;
 
 public:
-    // Add a city with a unique ID
+    // Add a city with a unique ID (classification based on status)
     void add_city(const City &c);
 
     // Build adjacency matrix (after all cities are added)
@@ -24,14 +27,19 @@ public:
     // Get distance by city ID
     double distance(int cityA_id, int cityB_id) const;
 
-    // Get city count
-    size_t city_count() const { return cities.size(); }
+    // Get total city count
+    size_t city_count() const { return friendly_cities.size() + enemy_cities.size() + neutral_cities.size(); }
 
     // Access city by ID
     const City &get_city(int id) const;
 
     // Check if city exists
-    bool has_city(int id) const { return cities.find(id) != cities.end(); }
+    bool has_city(int id) const;
+
+    // Access category maps
+    const std::unordered_map<int, City> &get_friendly_cities() const { return friendly_cities; }
+    const std::unordered_map<int, City> &get_enemy_cities() const { return enemy_cities; }
+    const std::unordered_map<int, City> &get_neutral_cities() const { return neutral_cities; }
 };
 
 #endif // GRAPH_HPP
