@@ -37,9 +37,9 @@ public:
     bool has_city(int id) const;
 
     // Access category maps
-    const std::unordered_map<int, City> &get_friendly_cities() const { return friendly_cities; }
-    const std::unordered_map<int, City> &get_enemy_cities() const { return enemy_cities; }
-    const std::unordered_map<int, City> &get_neutral_cities() const { return neutral_cities; }
+    std::vector<int> get_friendly_city_ids() const;
+    std::vector<int> get_enemy_city_ids() const;
+    std::vector<int> get_neutral_city_ids() const;
 };
 
 #endif // GRAPH_HPP

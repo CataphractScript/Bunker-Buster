@@ -75,3 +75,39 @@ bool Graph::has_city(int id) const
 {
     return friendly_cities.count(id) || enemy_cities.count(id) || neutral_cities.count(id);
 }
+
+// Access friendly city IDs
+std::vector<int> Graph::get_friendly_city_ids() const
+{
+    std::vector<int> ids;
+    ids.reserve(friendly_cities.size());
+    for (const auto &kv : friendly_cities)
+    {
+        ids.push_back(kv.first);
+    }
+    return ids;
+}
+
+// Access enemy city IDs
+std::vector<int> Graph::get_enemy_city_ids() const
+{
+    std::vector<int> ids;
+    ids.reserve(enemy_cities.size());
+    for (const auto &kv : enemy_cities)
+    {
+        ids.push_back(kv.first);
+    }
+    return ids;
+}
+
+// Access neutral city IDs
+std::vector<int> Graph::get_neutral_city_ids() const
+{
+    std::vector<int> ids;
+    ids.reserve(neutral_cities.size());
+    for (const auto &kv : neutral_cities)
+    {
+        ids.push_back(kv.first);
+    }
+    return ids;
+}
