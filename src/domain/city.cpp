@@ -65,3 +65,6 @@ void City::set_defense_count(const int& newDefense_count) { defense_count = newD
 
 std::vector<Missile> City::get_missiles() const { return missiles; }
 void City::set_missiles(const std::vector<Missile>& newMissiles) { missiles = newMissiles; }
+
+int City::get_missile_count() const { return missile_count; }
+void City::set_missile_count(const int& newMissile_count) { missile_count = newMissile_count; }

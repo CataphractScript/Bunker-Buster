@@ -15,6 +15,7 @@ class City {
         bool has_spy;
         int defense_count;
         std::vector<Missile> missiles;
+        int missile_count;
 
     public:
         // Default constructor
@@ -40,9 +41,9 @@ class City {
         int get_defense_count() const;
         void set_defense_count(const int& newDefense_count);
 
-        int get_missile_count() const;
-        void set_missile_count(const int& newMissile_count);
-
         std::vector<Missile> get_missiles() const;
         void set_missiles(const std::vector<Missile>& newMissiles);
+
+        int get_missile_count() const;
+        void set_missile_count(const int& newMissile_count); 
 };
