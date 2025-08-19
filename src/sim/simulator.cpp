@@ -119,5 +119,19 @@ void Simulator::scenario_1()
 
 void Simulator::scenario_2()
 {
-    /* code */
+    std::vector<int> friendly_cities = graph.get_friendly_city_ids();
+    std::vector<int> enemy_cities = graph.get_enemy_city_ids();
+    std::vector<std::vector<int>> paths;
+
+    for (const int &fc : friendly_cities) {
+        if (graph.get_city(fc).get_missile_count() > 0) {
+            for (const Missile &missile : graph.get_city(fc).get_missiles()) {
+                int class_A_count = 0;
+                if (missile.get_class_id()[0] == 'A') {
+                    class_A_count++;
+                }
+                // ...
+            }
+        }
+    }
 }
