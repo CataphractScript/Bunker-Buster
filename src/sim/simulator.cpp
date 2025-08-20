@@ -125,13 +125,21 @@ void Simulator::scenario_2()
 
     for (const int &fc : friendly_cities) {
         if (graph.get_city(fc).get_missile_count() > 0) {
+            int class_A_count = 0;
             for (const Missile &missile : graph.get_city(fc).get_missiles()) {
-                int class_A_count = 0;
                 if (missile.get_class_id()[0] == 'A') {
                     class_A_count++;
                 }
-                // ...
             }
+            double short_d = std::numeric_limits<double>::max(); // The shortest distance to one of the enemy cities
+            int closest_ec_id; // The closest enemy city ID
+            for (const int &ec : enemy_cities) {
+                if (graph.distance(fc, ec) < short_d) {
+                    short_d = graph.distance(fc, ec);
+                    closest_ec_id = ec;
+                }
+            }
+            // ...
         }
     }
 }
