@@ -6,15 +6,17 @@
 #include <vector>
 
 // Default constructor
-City::City() : country(""), coordinates({ 0,0 }), city_status(Neutral), has_spy(false), defense_count(0) {}
+City::City() : country(""), coordinates({ 0,0 }), city_status(Neutral), has_spy(false), defense_count(0), missiles(), missiles_t(), missile_count(0) {}
 
 // Constructor with validation via setters
-City::City(const std::string& c, const std::pair<int, int>& coord, const std::string& status, int spy, int def) {
-    set_country(c);
+City::City(const std::string& country_in, const std::pair<int, int>& coord, const std::string& status, bool spy, int def, const std::vector<Missile>& missile_in, const std::vector<std::vector<std::pair<Missile, int>>>& missile_in_t) {
+    set_country(country_in);
     set_coordinates(coord);
     set_city_status(status);
     set_has_spy(spy);
     set_defense_count(def);
+    set_missiles(missile_in);
+    set_missiles_t(missile_in_t);
 }
 
 // Implement getters and setters
@@ -57,14 +59,21 @@ void City::set_city_status(const std::string& newCity_status) {
     }
 }
 
-int City::get_has_spy() const { return has_spy; }
+bool City::get_has_spy() const { return has_spy; }
 void City::set_has_spy(const bool& newSpy) { has_spy = newSpy; }
 
 int City::get_defense_count() const { return defense_count; }
 void City::set_defense_count(const int& newDefense_count) { defense_count = newDefense_count; }
 
 std::vector<Missile> City::get_missiles() const { return missiles; }
-void City::set_missiles(const std::vector<Missile>& newMissiles) { missiles = newMissiles; }
+void City::set_missiles(const std::vector<Missile>& newMissiles) {
+    missiles = newMissiles;
+    missile_count = newMissiles.size();
+}
+
+std::vector<std::vector<std::pair<Missile, int>>> City::get_missiles_t() const { return missiles_t; }
+void City::set_missiles_t(const std::vector<std::vector<std::pair<Missile, int>>>& newMissiles_t) {
+    missiles_t = newMissiles_t;
+}
 
 int City::get_missile_count() const { return missile_count; }
-void City::set_missile_count(const int& newMissile_count) { missile_count = newMissile_count; }

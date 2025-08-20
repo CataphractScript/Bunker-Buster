@@ -129,25 +129,29 @@ void Simulator::scenario_2()
         if (graph.get_city(fc).get_missile_count() > 0) {
             // Total damage caused by the city's missiles
             long int damage = 0;
-
+            int A1_count = 0;
+            int A2_count = 0;
+            int A3_count = 0;
             // class A missile count
             int class_A_count = 0;
             for (const Missile &missile : graph.get_city(fc).get_missiles()) {
                 if (missile.get_class_id()[0] == 'A') {
                     if (missile.get_class_id() == "A1") {
-                        damage += 100;
+                        damage += missile.get_damage();
                     } else if (missile.get_class_id() == "A2") {
-                        damage += 130;
+                        damage += missile.get_damage();
                     } else if (missile.get_class_id() == "A3") {
-                        damage += 25;
+                        damage += missile.get_damage();
                     }
                 }
             }
 
             // Check if a class A missile exists
             if (damage > 0) {
-                double short_d = std::numeric_limits<double>::max(); // The shortest distance to one of the enemy cities
-                int closest_ec_id; // The closest enemy city ID
+                // The shortest distance to one of the enemy cities
+                double short_d = std::numeric_limits<double>::max();
+                // The closest enemy city ID
+                int closest_ec_id;
                 for (const int &ec : enemy_cities) {
                     if (graph.distance(fc, ec) < short_d) {
                         short_d = graph.distance(fc, ec);
@@ -156,8 +160,6 @@ void Simulator::scenario_2()
                 }
                 // Class A missile range: 2500
                 if (short_d < 2500) {
-                    continue;
-                } else {
                     int current_city = fc;
                     std::vector<int> path;
 
@@ -203,6 +205,8 @@ void Simulator::scenario_2()
                             break;
                         }
                     }
+                } else {
+                    continue;
                 }
             } else {
                 continue;
