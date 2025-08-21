@@ -127,29 +127,32 @@ void Simulator::scenario_2()
 
     for (const int &fc : friendly_cities) {
         if (graph.get_city(fc).get_missile_count() > 0) {
-            // Total damage caused by the city's missiles
-            long int damage = 0;
+
+            // Number of Class A missiles of each type
             int A1_count = 0;
             int A2_count = 0;
             int A3_count = 0;
-            // class A missile count
-            int class_A_count = 0;
+
             for (const Missile &missile : graph.get_city(fc).get_missiles()) {
                 if (missile.get_class_id()[0] == 'A') {
                     if (missile.get_class_id() == "A1") {
-                        damage += missile.get_damage();
+                        A1_count++;
                     } else if (missile.get_class_id() == "A2") {
-                        damage += missile.get_damage();
+                        A2_count++;
                     } else if (missile.get_class_id() == "A3") {
-                        damage += missile.get_damage();
+                        A3_count++;
                     }
                 }
             }
 
+            // class A missile count
+            // int class_A_count = A1_count + A2_count + A3_count;
+
             // Check if a class A missile exists
-            if (damage > 0) {
+            if (A1_count + A2_count + A3_count > 0) {
                 // The shortest distance to one of the enemy cities
                 double short_d = std::numeric_limits<double>::max();
+
                 // The closest enemy city ID
                 int closest_ec_id;
                 for (const int &ec : enemy_cities) {
@@ -166,11 +169,14 @@ void Simulator::scenario_2()
                     // Add the starting city to the path
                     path.push_back(fc);
 
+                    // Number of spies encountered along the path
+                    int spies_count = 0;
+
                     while (true) {
                         // Check if the current city is not an enemy city
                         if (graph.get_city(current_city).get_city_status_int() != 3) {
                             // Candidate cities for the missile's next move (Cities that don't have spies(ID, distance), Cities that have spies(ID, distance))
-                            std::pair<std::vector<std::pair<int, double>>, std::vector<std::pair<int, double>>> candidates; 
+                            std::pair<std::vector<std::pair<int, double>>, std::vector<std::pair<int, double>>> candidates;
                             for (size_t i = 0; i < graph.city_count(); i++) {
                                 // Enemy city located west of the current city, within the uncontrolled range of Class A missiles (main conditions)
                                 if (graph.get_city(i).get_coordinates().first <= graph.get_city(current_city).get_coordinates().first && graph.distance(current_city, i) < 500) {
@@ -193,15 +199,29 @@ void Simulator::scenario_2()
                             
                             // Check if a city without any spies exists
                             if (!candidates.first.empty()) {
+                                current_city = candidates.first.front().first;
                                 path.push_back(candidates.first.front().first);
-                                total_damage += damage;
                             } else if (!candidates.second.empty()) {
+                                spies_count++;
                                 path.push_back(candidates.second.front().first);
-                                total_damage += damage;
                             }
-                        }
-                        else {
-                            paths.push_back(path);
+                        } else if(graph.get_city(closest_ec_id).get_defense_count() > 0) {
+                            if (spies_count >= 4) {
+                                A1_count = 0;
+                                A2_count = 0;
+                                A3_count = 0;
+                            } else if (spies_count == 3) {
+                                A1_count = 0;
+                                A2_count = 0;
+                            } else if (spies_count == 2) {
+                                A2_count = 0;
+                            }
+                            if ((A1_count * 100) + (A2_count * 130) + (A3_count * 25) != 0) {
+                                paths.push_back(path);
+                            }
+                            total_damage += (A1_count * 100) + (A2_count * 130) + (A3_count * 25);
+                            break;
+                        } else {
                             break;
                         }
                     }
