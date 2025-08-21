@@ -18,13 +18,12 @@ class City {
         std::vector<std::vector<std::pair<Missile, int>>> missiles_t; // test -> {missile, id} (id -> A1, A2, B1, ...)
         int missile_count;
 
-
     public:
         // Default constructor
         City();
 
         // Constructor with parameters
-        City(const std::string& country_in, const std::pair<int, int>& coord, const std::string& status, bool spy, int def, const std::vector<Missile>& missile_in, const std::vector<std::vector<std::pair<Missile, int>>>& missile_in_t);
+        City(const std::string& country_in, const std::pair<int, int>& coord, const std::string& status, bool spy, int def, const std::vector<Missile>& missile_in);
 
         // Getters and setters
         std::string get_country() const;
@@ -45,9 +44,6 @@ class City {
 
         std::vector<Missile> get_missiles() const;
         void set_missiles(const std::vector<Missile>& newMissiles);
-
-        std::vector<std::vector<std::pair<Missile, int>>> get_missiles_t() const;
-        void set_missiles_t(const std::vector<std::vector<std::pair<Missile, int>>>& newMissiles_t); 
 
         int get_missile_count() const;
         void set_missile_count(const int& newMissile_count); 

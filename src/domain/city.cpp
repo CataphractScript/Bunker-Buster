@@ -6,17 +6,16 @@
 #include <vector>
 
 // Default constructor
-City::City() : country(""), coordinates({ 0,0 }), city_status(Neutral), has_spy(false), defense_count(0), missiles(), missiles_t(), missile_count(0) {}
+City::City() : country(""), coordinates({ 0,0 }), city_status(Neutral), has_spy(false), defense_count(0), missiles(), missile_count(0) {}
 
 // Constructor with validation via setters
-City::City(const std::string& country_in, const std::pair<int, int>& coord, const std::string& status, bool spy, int def, const std::vector<Missile>& missile_in, const std::vector<std::vector<std::pair<Missile, int>>>& missile_in_t) {
+City::City(const std::string& country_in, const std::pair<int, int>& coord, const std::string& status, bool spy, int def, const std::vector<Missile>& missile_in) {
     set_country(country_in);
     set_coordinates(coord);
     set_city_status(status);
     set_has_spy(spy);
     set_defense_count(def);
     set_missiles(missile_in);
-    set_missiles_t(missile_in_t);
 }
 
 // Implement getters and setters
@@ -69,11 +68,6 @@ std::vector<Missile> City::get_missiles() const { return missiles; }
 void City::set_missiles(const std::vector<Missile>& newMissiles) {
     missiles = newMissiles;
     missile_count = newMissiles.size();
-}
-
-std::vector<std::vector<std::pair<Missile, int>>> City::get_missiles_t() const { return missiles_t; }
-void City::set_missiles_t(const std::vector<std::vector<std::pair<Missile, int>>>& newMissiles_t) {
-    missiles_t = newMissiles_t;
 }
 
 int City::get_missile_count() const { return missile_count; }
