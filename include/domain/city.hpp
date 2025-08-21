@@ -15,7 +15,6 @@ class City {
         bool has_spy;
         int defense_count;
         std::vector<Missile> missiles;
-        std::vector<std::vector<std::pair<Missile, int>>> missiles_t; // test -> {missile, id} (id -> A1, A2, B1, ...)
         int missile_count;
 
     public:
