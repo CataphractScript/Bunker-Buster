@@ -72,7 +72,7 @@ void City::set_missiles(const std::vector<Missile>& new_missiles) {
 }
 
 std::unordered_map<std::string, int> City::get_missile_stock() const { return missile_stock; }
-void City::set_missile_stock(std::unordered_map<std::string, int> new_missile_stock) {
+void City::set_missile_stock(std::unordered_map<std::string, int>& new_missile_stock) {
     missile_stock = new_missile_stock;
 }
 

@@ -47,7 +47,7 @@ class City {
         void set_missiles(const std::vector<Missile>& new_missiles);
 
         std::unordered_map<std::string, int> get_missile_stock() const;
-        void set_missile_stock(std::unordered_map<std::string, int> new_missile_stock);
+        void set_missile_stock(std::unordered_map<std::string, int>& new_missile_stock);
 
         int get_missile_count() const;
 };
