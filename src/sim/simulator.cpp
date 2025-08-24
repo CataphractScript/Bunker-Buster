@@ -26,9 +26,17 @@ void Simulator::run(int scenario_num)
         scenario_1();
         break;
 
-    case 2:
-        scenario_2();
+    // case 2:
+    //     scenario_2();
+    //     break;
+
+    case 3:
+        scenario_3();
         break;
+
+    // case 4:
+    //     scenario_4();
+    //     break;
 
     default:
         std::cout << "Invalid scenario number!" << std::endl;
@@ -119,55 +127,33 @@ void Simulator::scenario_1()
     */
 }
 
-void Simulator::scenario_2()
-{
-    std::vector<int> friendly_cities = graph.get_friendly_city_ids();
+void Simulator::scenario_2(std::vector<int>& a_cities) {
+    // std::vector<int> friendly_cities = graph.get_friendly_city_ids();
     std::vector<int> enemy_cities = graph.get_enemy_city_ids();
     std::vector<std::vector<int>> paths;
 
-    for (const int &fc : friendly_cities) {
-        if (graph.get_city(fc).get_missile_count() > 0) {
-
-            // Number of Class A missiles of each type
-            int A1_count = 0;
-            int A2_count = 0;
-            int A3_count = 0;
-
-            for (const Missile &missile : graph.get_city(fc).get_missiles()) {
-                if (missile.get_class_id()[0] == 'A') {
-                    if (missile.get_class_id() == "A1") {
-                        A1_count++;
-                    } else if (missile.get_class_id() == "A2") {
-                        A2_count++;
-                    } else if (missile.get_class_id() == "A3") {
-                        A3_count++;
-                    }
-                }
-            }
-
-            // class A missile count
-            // int class_A_count = A1_count + A2_count + A3_count;
-
+    for (const int &a : a_cities) {
+        if (graph.get_city(a).get_missile_count() > 0) {
             // Check if a class A missile exists
-            if (A1_count + A2_count + A3_count > 0) {
+            if (graph.get_city(a).get_missile_stock()["A1"] + graph.get_city(a).get_missile_stock()["A2"] + graph.get_city(a).get_missile_stock()["A3"] > 0) {
                 // The shortest distance to one of the enemy cities
                 double short_d = std::numeric_limits<double>::max();
 
                 // The closest enemy city ID
                 int closest_ec_id;
                 for (const int &ec : enemy_cities) {
-                    if (graph.distance(fc, ec) < short_d) {
-                        short_d = graph.distance(fc, ec);
+                    if (graph.distance(a, ec) < short_d) {
+                        short_d = graph.distance(a, ec);
                         closest_ec_id = ec;
                     }
                 }
                 // Class A missile range: 2500
                 if (short_d < 2500) {
-                    int current_city = fc;
+                    int current_city = a;
                     std::vector<int> path;
 
                     // Add the starting city to the path
-                    path.push_back(fc);
+                    path.push_back(a);
 
                     // Number of spies encountered along the path
                     int spies_count = 0;
@@ -207,19 +193,19 @@ void Simulator::scenario_2()
                             }
                         } else if(graph.get_city(closest_ec_id).get_defense_count() > 0) {
                             if (spies_count >= 4) {
-                                A1_count = 0;
-                                A2_count = 0;
-                                A3_count = 0;
+                                graph.set_missile_count(a, "A1", 0);
+                                graph.set_missile_count(a, "A2", 0);;
+                                graph.set_missile_count(a, "A3", 0);;
                             } else if (spies_count == 3) {
-                                A1_count = 0;
-                                A2_count = 0;
+                                graph.set_missile_count(a, "A1", 0);;
+                                graph.set_missile_count(a, "A2", 0);;
                             } else if (spies_count == 2) {
-                                A2_count = 0;
+                                graph.set_missile_count(a, "A2", 0);;
                             }
-                            if ((A1_count * 100) + (A2_count * 130) + (A3_count * 25) != 0) {
+                            if ((graph.get_city(a).get_missile_stock().at("A1") * 100) + (graph.get_city(a).get_missile_stock().at("A2") * 130) + (graph.get_city(a).get_missile_stock().at("A3") * 25) != 0) {
                                 paths.push_back(path);
                             }
-                            total_damage += (A1_count * 100) + (A2_count * 130) + (A3_count * 25);
+                            total_damage += (graph.get_city(a).get_missile_stock().at("A1") * 100) + (graph.get_city(a).get_missile_stock().at("A2") * 130) + (graph.get_city(a).get_missile_stock().at("A3") * 25);
                             break;
                         } else {
                             break;
@@ -231,6 +217,17 @@ void Simulator::scenario_2()
             } else {
                 continue;
             }
+        }
+    }
+}
+
+void Simulator::scenario_3() {}
+
+void Simulator::scenario_4(std::vector<int>& abc_cities) {
+    
+    for (const int &abc : abc_cities) {
+        if (graph.get_city(abc).get_missile_count() > 0) {
+            // ...
         }
     }
 }
