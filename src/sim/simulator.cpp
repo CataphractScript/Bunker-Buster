@@ -2,6 +2,7 @@
 #include "../../include/domain/city.hpp"
 #include "../../include/domain/missile.hpp"
 #include "../../include/graph/graph.hpp"
+#include "../../include/data/missile_data.hpp"
 
 #include <limits>
 #include <algorithm>
@@ -128,91 +129,85 @@ void Simulator::scenario_1()
 }
 
 void Simulator::scenario_2(std::vector<int>& a_cities) {
-    // std::vector<int> friendly_cities = graph.get_friendly_city_ids();
     std::vector<int> enemy_cities = graph.get_enemy_city_ids();
     std::vector<std::vector<int>> paths;
 
     for (const int &a : a_cities) {
         if (graph.get_city(a).get_missile_count() > 0) {
-            // Check if a class A missile exists
-            if (graph.get_city(a).get_missile_stock()["A1"] + graph.get_city(a).get_missile_stock()["A2"] + graph.get_city(a).get_missile_stock()["A3"] > 0) {
-                // The shortest distance to one of the enemy cities
-                double short_d = std::numeric_limits<double>::max();
+            // The shortest distance to one of the enemy cities
+            double short_d = std::numeric_limits<double>::max();
 
-                // The closest enemy city ID
-                int closest_ec_id;
-                for (const int &ec : enemy_cities) {
-                    if (graph.distance(a, ec) < short_d) {
-                        short_d = graph.distance(a, ec);
-                        closest_ec_id = ec;
-                    }
+            // The closest enemy city ID
+            int closest_ec_id;
+            for (const int &ec : enemy_cities) {
+                if (graph.distance(a, ec) < short_d) {
+                    short_d = graph.distance(a, ec);
+                    closest_ec_id = ec;
                 }
-                // Class A missile range: 2500
-                if (short_d < 2500) {
-                    int current_city = a;
-                    std::vector<int> path;
+            }
+            // Class A missile range: 2500
+            if (short_d < 2500) {
+                int current_city = a;
+                std::vector<int> path;
 
-                    // Add the starting city to the path
-                    path.push_back(a);
+                // Add the starting city to the path
+                path.push_back(a);
 
-                    // Number of spies encountered along the path
-                    int spies_count = 0;
+                // Number of spies encountered along the path
+                int spies_count = 0;
 
-                    while (true) {
-                        // Check if the current city is not an enemy city
-                        if (graph.get_city(current_city).get_city_status_int() != 3) {
-                            // Candidate cities for the missile's next move (Cities that don't have spies(ID, distance), Cities that have spies(ID, distance))
-                            std::pair<std::vector<std::pair<int, double>>, std::vector<std::pair<int, double>>> candidates;
-                            for (size_t i = 0; i < graph.city_count(); i++) {
-                                // Enemy city located west of the current city, within the uncontrolled range of Class A missiles (main conditions)
-                                if (graph.get_city(i).get_coordinates().first <= graph.get_city(current_city).get_coordinates().first && graph.distance(current_city, i) < 500) {
-                                    if (!graph.get_city(i).get_has_spy()) {
-                                        candidates.first.push_back({i, graph.distance(current_city, i)});
-                                    } else {
-                                        candidates.second.push_back({i, graph.distance(current_city, i)});
-                                    }
+                while (true) {
+                    // Check if the current city is not an enemy city
+                    if (graph.get_city(current_city).get_city_status_int() != 3) {
+                        // Candidate cities for the missile's next move (Cities that don't have spies(ID, distance), Cities that have spies(ID, distance))
+                        std::pair<std::vector<std::pair<int, double>>, std::vector<std::pair<int, double>>> candidates;
+                        for (size_t i = 0; i < graph.city_count(); i++) {
+                            // Enemy city located west of the current city, within the uncontrolled range of Class A missiles (main conditions)
+                            if (graph.get_city(i).get_coordinates().first <= graph.get_city(current_city).get_coordinates().first && graph.distance(current_city, i) < 500) {
+                                if (!graph.get_city(i).get_has_spy()) {
+                                    candidates.first.push_back({i, graph.distance(current_city, i)});
                                 } else {
-                                    continue;
+                                    candidates.second.push_back({i, graph.distance(current_city, i)});
                                 }
+                            } else {
+                                continue;
                             }
-                            // Sort candidate cities in ascending order of distance
-                            std::sort(candidates.first.begin(), candidates.first.end(), [](const std::pair<int,double> &a, const std::pair<int,double> &b) {
-                                return a.second < b.second; 
-                            });
-                            std::sort(candidates.second.begin(), candidates.second.end(), [](const std::pair<int,double> &a, const std::pair<int,double> &b) {
-                                return a.second < b.second;
-                            });
-                            
-                            // Check if a city without any spies exists
-                            if (!candidates.first.empty()) {
-                                current_city = candidates.first.front().first;
-                                path.push_back(candidates.first.front().first);
-                            } else if (!candidates.second.empty()) {
-                                spies_count++;
-                                path.push_back(candidates.second.front().first);
-                            }
-                        } else if(graph.get_city(closest_ec_id).get_defense_count() > 0) {
-                            if (spies_count >= 4) {
-                                graph.set_missile_count(a, "A1", 0);
-                                graph.set_missile_count(a, "A2", 0);;
-                                graph.set_missile_count(a, "A3", 0);;
-                            } else if (spies_count == 3) {
-                                graph.set_missile_count(a, "A1", 0);;
-                                graph.set_missile_count(a, "A2", 0);;
-                            } else if (spies_count == 2) {
-                                graph.set_missile_count(a, "A2", 0);;
-                            }
-                            if ((graph.get_city(a).get_missile_stock().at("A1") * 100) + (graph.get_city(a).get_missile_stock().at("A2") * 130) + (graph.get_city(a).get_missile_stock().at("A3") * 25) != 0) {
-                                paths.push_back(path);
-                            }
-                            total_damage += (graph.get_city(a).get_missile_stock().at("A1") * 100) + (graph.get_city(a).get_missile_stock().at("A2") * 130) + (graph.get_city(a).get_missile_stock().at("A3") * 25);
-                            break;
-                        } else {
-                            break;
                         }
+                        // Sort candidate cities in ascending order of distance
+                        std::sort(candidates.first.begin(), candidates.first.end(), [](const std::pair<int,double> &a, const std::pair<int,double> &b) {
+                            return a.second < b.second; 
+                        });
+                        std::sort(candidates.second.begin(), candidates.second.end(), [](const std::pair<int,double> &a, const std::pair<int,double> &b) {
+                            return a.second < b.second;
+                        });
+                            
+                        // Check if a city without any spies exists
+                        if (!candidates.first.empty()) {
+                            current_city = candidates.first.front().first;
+                            path.push_back(candidates.first.front().first);
+                        } else if (!candidates.second.empty()) {
+                            spies_count++;
+                            path.push_back(candidates.second.front().first);
+                        }
+                    } else if(graph.get_city(closest_ec_id).get_defense_count() > 0) {
+                        if (spies_count >= 4) {
+                            graph.set_missile_count(a, "A1", 0);
+                            graph.set_missile_count(a, "A2", 0);;
+                            graph.set_missile_count(a, "A3", 0);;
+                        } else if (spies_count == 3) {
+                            graph.set_missile_count(a, "A1", 0);;
+                            graph.set_missile_count(a, "A2", 0);;
+                        } else if (spies_count == 2) {
+                            graph.set_missile_count(a, "A2", 0);;
+                        }
+                        if ((graph.get_city(a).get_missile_stock().at("A1") * 100) + (graph.get_city(a).get_missile_stock().at("A2") * 130) + (graph.get_city(a).get_missile_stock().at("A3") * 25) != 0) {
+                            paths.push_back(path);
+                        }
+                        total_damage += (graph.get_city(a).get_missile_stock().at("A1") * 100) + (graph.get_city(a).get_missile_stock().at("A2") * 130) + (graph.get_city(a).get_missile_stock().at("A3") * 25);
+                        break;
+                    } else {
+                        break;
                     }
-                } else {
-                    continue;
                 }
             } else {
                 continue;
@@ -224,10 +219,29 @@ void Simulator::scenario_2(std::vector<int>& a_cities) {
 void Simulator::scenario_3() {}
 
 void Simulator::scenario_4(std::vector<int>& abc_cities) {
-    
+    std::vector<int> enemy_cities = graph.get_enemy_city_ids();
+    std::vector<std::vector<int>> paths;
+
     for (const int &abc : abc_cities) {
         if (graph.get_city(abc).get_missile_count() > 0) {
-            // ...
-        }
+            // Stores distances to all enemy cities
+            std::vector<double> enemy_city_distances;
+
+            for (const int &ec : enemy_cities) {
+                enemy_city_distances.push_back(graph.distance(abc, ec));
+            }
+
+            // Sort enemy city distances in ascending order
+            std::sort(enemy_city_distances.begin(), enemy_city_distances.end());
+
+            // Minimum missile range in the set
+            int missile_min_range = 0;
+            // A1 range = A2 range = A3 range / B1 range = B2 range / C range + 100 = C1 rang
+            if (graph.get_city(abc).get_missile_stock().at("A1") > 0 ||
+                graph.get_city(abc).get_missile_stock().at("A2") > 0 ||
+                graph.get_city(abc).get_missile_stock().at("A3") > 0)    
+            {
+                missile_min_range = missile_data.get_shahab7().get_range();
+            }
     }
 }

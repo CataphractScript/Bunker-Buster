@@ -4,6 +4,7 @@
 
 #include "../graph/graph.hpp"
 #include "../domain/missile.hpp"
+#include "../../include/data/missile_data.hpp"
 
 #include <iostream>
 
@@ -13,6 +14,7 @@ private:
     long long total_damage; // Stores total damage calculated in scenarios
     Graph graph;
     Missile missile;
+    load_missiles missile_data;
 
 public:
     // Constructor initializes total_damage to zero
