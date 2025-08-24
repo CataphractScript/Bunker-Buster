@@ -31,6 +31,7 @@ void City::set_country(const std::string& new_country) {
 }
 
 std::pair<int, int> City::get_coordinates() const { return coordinates; }
+
 void City::set_coordinates(const std::pair<int, int>& new_coordinates) { coordinates = new_coordinates; }
 
 int City::get_city_status_int() const {
@@ -60,20 +61,28 @@ void City::set_city_status(const std::string& new_city_status) {
 }
 
 bool City::get_has_spy() const { return has_spy; }
+
 void City::set_has_spy(const bool& new_spy) { has_spy = new_spy; }
 
 int City::get_defense_count() const { return defense_count; }
+
 void City::set_defense_count(const int& new_defense_count) { defense_count = new_defense_count; }
 
 std::vector<Missile> City::get_missiles() const { return missiles; }
+
 void City::set_missiles(const std::vector<Missile>& new_missiles) {
     missiles = new_missiles;
     missile_count = new_missiles.size();
 }
 
 std::unordered_map<std::string, int> City::get_missile_stock() const { return missile_stock; }
+
 void City::set_missile_stock(std::unordered_map<std::string, int>& new_missile_stock) {
     missile_stock = new_missile_stock;
 }
+
+void City::missile_stock_increment(std::string class_id) { missile_stock[class_id]++; }
+
+void City::missile_stock_decrement(std::string class_id) { missile_stock[class_id]--; }
 
 int City::get_missile_count() const { return missile_count; }
