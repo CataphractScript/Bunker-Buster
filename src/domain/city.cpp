@@ -6,31 +6,32 @@
 #include <vector>
 
 // Default constructor
-City::City() : country(""), coordinates({ 0,0 }), city_status(Neutral), has_spy(false), defense_count(0), missiles(), missile_count(0) {}
+City::City() : country(""), coordinates({ 0,0 }), city_status(Neutral), has_spy(false), defense_count(0), missiles(), missile_stock(), missile_count(0) {}
 
 // Constructor with validation via setters
-City::City(const std::string& country_in, const std::pair<int, int>& coord, const std::string& status, bool spy, int def, const std::vector<Missile>& missile_in) {
+City::City(const std::string& country_in, const std::pair<int, int>& coord, const std::string& status, bool spy, int def, const std::vector<Missile>& missile_in, std::unordered_map<std::string, int> missile_stock_in) {
     set_country(country_in);
     set_coordinates(coord);
     set_city_status(status);
     set_has_spy(spy);
     set_defense_count(def);
     set_missiles(missile_in);
+    set_missile_stock(missile_stock_in);
 }
 
 // Implement getters and setters
 std::string City::get_country() const { return country; }
 
-void City::set_country(const std::string& newCountry) {
-    if (!newCountry.empty() && newCountry.size() == 3) {
-        country = newCountry;
+void City::set_country(const std::string& new_country) {
+    if (!new_country.empty() && new_country.size() == 3) {
+        country = new_country;
         std::transform(country.begin(), country.end(), country.begin(),
             [](unsigned char c) { return std::toupper(c); });
     }
 }
 
 std::pair<int, int> City::get_coordinates() const { return coordinates; }
-void City::set_coordinates(const std::pair<int, int>& newCoordinates) { coordinates = newCoordinates; }
+void City::set_coordinates(const std::pair<int, int>& new_coordinates) { coordinates = new_coordinates; }
 
 int City::get_city_status_int() const {
     return static_cast<int>(city_status); // static_cast: Modern C++ cast for safe and explicit type conversion
@@ -45,9 +46,9 @@ std::string City::get_city_status_str() const {
     }
 }
 
-void City::set_city_status(const std::string& newCity_status) {
-    if (!newCity_status.empty()) {
-        std::string lower = newCity_status;
+void City::set_city_status(const std::string& new_city_status) {
+    if (!new_city_status.empty()) {
+        std::string lower = new_city_status;
         std::transform(lower.begin(), lower.end(), lower.begin(),
             [](unsigned char c) { return std::tolower(c); });
 
@@ -59,15 +60,20 @@ void City::set_city_status(const std::string& newCity_status) {
 }
 
 bool City::get_has_spy() const { return has_spy; }
-void City::set_has_spy(const bool& newSpy) { has_spy = newSpy; }
+void City::set_has_spy(const bool& new_spy) { has_spy = new_spy; }
 
 int City::get_defense_count() const { return defense_count; }
-void City::set_defense_count(const int& newDefense_count) { defense_count = newDefense_count; }
+void City::set_defense_count(const int& new_defense_count) { defense_count = new_defense_count; }
 
 std::vector<Missile> City::get_missiles() const { return missiles; }
-void City::set_missiles(const std::vector<Missile>& newMissiles) {
-    missiles = newMissiles;
-    missile_count = newMissiles.size();
+void City::set_missiles(const std::vector<Missile>& new_missiles) {
+    missiles = new_missiles;
+    missile_count = new_missiles.size();
+}
+
+std::unordered_map<std::string, int> City::get_missile_stock() const { return missile_stock; }
+void City::set_missile_stock(std::unordered_map<std::string, int> new_missile_stock) {
+    missile_stock = new_missile_stock;
 }
 
 int City::get_missile_count() const { return missile_count; }
