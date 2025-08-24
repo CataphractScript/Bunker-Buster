@@ -12,3 +12,12 @@ load_missiles::load_missiles()
       Tondar85("Tondar85", 2900, 900, 1, 10, "C"),
       SangarShekan("SangarShekan", std::numeric_limits<int>::max(), 500, 2, 1488, "D1")
 {}
+
+const Missile& load_missiles::get_shahab7() const { return Shahab7; }
+const Missile& load_missiles::get_sejid() const { return Sejid; }
+const Missile& load_missiles::get_hormuz3() const { return Hormuz3; }
+const Missile& load_missiles::get_ghadr313() const { return Ghadr313; }
+const Missile& load_missiles::get_tasua() const { return Tasua; }
+const Missile& load_missiles::get_said1() const { return Said1; }
+const Missile& load_missiles::get_tondar85() const { return Tondar85; }
+const Missile& load_missiles::get_sangar_shekan() const { return SangarShekan; }
