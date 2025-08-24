@@ -79,10 +79,10 @@ std::unordered_map<std::string, int> City::get_missile_stock() const { return mi
 
 void City::set_missile_stock(std::unordered_map<std::string, int>& new_missile_stock) { missile_stock = new_missile_stock; }
 
-void City::set_missile_count(std::string class_id, int number) { missile_stock.at(class_id) = number; }
+void City::set_missile_count(std::string class_id, int number) { missile_stock[class_id] = number; }
 
-void City::missile_stock_increment(std::string class_id) { missile_stock.at(class_id)++; }
+void City::missile_stock_increment(std::string class_id) { missile_stock[class_id]++; }
 
-void City::missile_stock_decrement(std::string class_id) { missile_stock.at(class_id)--; }
+void City::missile_stock_decrement(std::string class_id) { missile_stock[class_id]--; }
 
 int City::get_missile_count() const { return missile_count; }

@@ -111,3 +111,12 @@ std::vector<int> Graph::get_neutral_city_ids() const
     }
     return ids;
 }
+
+void Graph::set_missile_count(int id, std::string class_id, int number) {
+    if (friendly_cities.count(id))
+        friendly_cities.at(id).set_missile_count(class_id, number);
+    if (enemy_cities.count(id))
+        enemy_cities.at(id).set_missile_count(class_id, number);
+    if (neutral_cities.count(id))
+        neutral_cities.at(id).set_missile_count(class_id, number);
+}
