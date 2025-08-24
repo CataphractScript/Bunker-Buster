@@ -15,8 +15,7 @@ public:
             double uncontrolled_range,
             int stealth,
             int damage,
-            const std::string &class_id,
-            int start_city);
+            const std::string &class_id);
 
     // Getters
     const std::string &get_name() const { return name; }

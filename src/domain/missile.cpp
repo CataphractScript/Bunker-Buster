@@ -11,10 +11,10 @@ Missile::Missile(const std::string &name,
                  double uncontrolled_range,
                  int stealth,
                  int damage,
-                 const std::string &class_id,
-                 int start_city)
+                 const std::string &class_id)
                  : name(name), range(0), uncontrolled_range(0),stealth(0), damage(0), class_id("Unknown")
 {
+    set_name(name);
     set_range(range);
     set_uncontrolled_range(uncontrolled_range);
     set_stealth(stealth);
