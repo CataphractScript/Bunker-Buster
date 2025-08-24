@@ -224,15 +224,18 @@ void Simulator::scenario_4(std::vector<int>& abc_cities) {
 
     for (const int &abc : abc_cities) {
         if (graph.get_city(abc).get_missile_count() > 0) {
-            // Stores distances to all enemy cities
-            std::vector<double> enemy_city_distances;
+            // Vector of enemy cities with their distances: (city_id, distance)
+            std::vector<std::pair<int, double>> enemy_cities_with_distances;
 
             for (const int &ec : enemy_cities) {
-                enemy_city_distances.push_back(graph.distance(abc, ec));
+                enemy_cities_with_distances.push_back({ec, graph.distance(abc, ec)});
             }
 
-            // Sort enemy city distances in ascending order
-            std::sort(enemy_city_distances.begin(), enemy_city_distances.end());
+            // Sort ascending by distance
+            std::sort(enemy_cities_with_distances.begin(), enemy_cities_with_distances.end(),
+                    [](const std::pair<int, double>& a, const std::pair<int, double>& b) {
+                        return a.second < b.second; // compare by distance
+                    });
 
             // Minimum missile range in the set
             int missile_min_range = 0;
@@ -243,5 +246,29 @@ void Simulator::scenario_4(std::vector<int>& abc_cities) {
             {
                 missile_min_range = missile_data.get_shahab7().get_range();
             }
+            else if (graph.get_city(abc).get_missile_stock().at("C") > 0) {
+                missile_min_range = missile_data.get_tondar85().get_range();
+            }
+            else if (graph.get_city(abc).get_missile_stock().at("C1") > 0) {
+                missile_min_range = missile_data.get_said1().get_range();
+            } 
+            else if (graph.get_city(abc).get_missile_stock().at("B1") > 0 ||
+                     graph.get_city(abc).get_missile_stock().at("B2") > 0)
+            {
+                missile_min_range = missile_data.get_ghadr313().get_range();
+            }
+
+            // Closest enemy city: (city_id, distance)
+            std::pair<int, double> closest_enemy_city;
+            
+            for (const auto& d : enemy_cities_with_distances) {
+                if (d.second <= missile_min_range) {
+                    closest_enemy_city = d;
+                    break;
+                } else {
+                    continue;
+                }
+            }
+        }
     }
 }
