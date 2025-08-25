@@ -191,6 +191,7 @@ void Simulator::scenario_2(std::vector<int> &a_cities)
                     closest_ec_id = ec;
                 }
             }
+
             // Class A missile range: 2500
             if (short_d < 2500)
             {
@@ -253,21 +254,16 @@ void Simulator::scenario_2(std::vector<int> &a_cities)
                         {
                             graph.set_missile_count(a, "A1", 0);
                             graph.set_missile_count(a, "A2", 0);
-                            ;
                             graph.set_missile_count(a, "A3", 0);
-                            ;
                         }
                         else if (spies_count == 3)
                         {
                             graph.set_missile_count(a, "A1", 0);
-                            ;
                             graph.set_missile_count(a, "A2", 0);
-                            ;
                         }
                         else if (spies_count == 2)
                         {
                             graph.set_missile_count(a, "A2", 0);
-                            ;
                         }
                         if ((graph.get_city(a).get_missile_stock().at("A1") * 100) + (graph.get_city(a).get_missile_stock().at("A2") * 130) + (graph.get_city(a).get_missile_stock().at("A3") * 25) != 0)
                         {
@@ -316,8 +312,9 @@ void Simulator::scenario_4(std::vector<int> &abc_cities)
                           return a.second < b.second; // compare by distance
                       });
 
-            // Minimum missile range in the set
-            int missile_min_range = 0;
+            // Minimum range among missile classes A, B, and C
+            double missile_min_range = 0;
+
             // A1 range = A2 range = A3 range / B1 range = B2 range / C range + 100 = C1 rang
             if (graph.get_city(abc).get_missile_stock().at("A1") > 0 ||
                 graph.get_city(abc).get_missile_stock().at("A2") > 0 ||
@@ -328,6 +325,7 @@ void Simulator::scenario_4(std::vector<int> &abc_cities)
             else if (graph.get_city(abc).get_missile_stock().at("C") > 0)
             {
                 missile_min_range = missile_data.get_tondar85().get_range();
+
             }
             else if (graph.get_city(abc).get_missile_stock().at("C1") > 0)
             {
@@ -337,6 +335,27 @@ void Simulator::scenario_4(std::vector<int> &abc_cities)
                      graph.get_city(abc).get_missile_stock().at("B2") > 0)
             {
                 missile_min_range = missile_data.get_ghadr313().get_range();
+            }
+
+            // Minimum uncontrolled range among missile classes A, B, and C
+            double min_uncontrolled_range = 0;
+
+            if (graph.get_city(abc).get_missile_stock().at("A1") > 0 ||
+                graph.get_city(abc).get_missile_stock().at("A2") > 0 ||
+                graph.get_city(abc).get_missile_stock().at("A3") > 0 ||
+                graph.get_city(abc).get_missile_stock().at("B1") > 0 ||
+                graph.get_city(abc).get_missile_stock().at("B2") > 0)
+            {
+                missile_min_range = missile_data.get_shahab7().get_uncontrolled_range();
+            }
+            else if (graph.get_city(abc).get_missile_stock().at("C1") > 0)
+            {
+                missile_min_range = missile_data.get_said1().get_range();
+
+            }
+            else if (graph.get_city(abc).get_missile_stock().at("C") > 0)
+            {
+                missile_min_range = missile_data.get_tondar85().get_range();
             }
 
             // Closest enemy city: (city_id, distance)
@@ -353,7 +372,18 @@ void Simulator::scenario_4(std::vector<int> &abc_cities)
                 {
                     continue;
                 }
-            }
+            }    
+
+            int current_city = abc;
+            std::vector<int> path;
+
+            // Add the starting city to the path
+            path.push_back(abc);
+
+            // Number of spies encountered along the path
+            int spies_count = 0;
+
+            //...
         }
     }
 }
