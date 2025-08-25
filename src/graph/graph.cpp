@@ -60,7 +60,7 @@ double Graph::distance(int cityA_id, int cityB_id) const
     return adj_matrix[cityA_id][cityB_id];
 }
 
-const City &Graph::get_city(int id) const
+City &Graph::get_city(int id)
 {
     if (friendly_cities.count(id))
         return friendly_cities.at(id);

@@ -33,7 +33,7 @@ public:
     // Different scenario functions
     void scenario_1();
     void scenario_2(std::vector<int>& a_cities);
-    void scenario_3();
+    void scenario_3(std::unordered_map<std::string, int>);
     void scenario_4(std::vector<int>& abc_cities); // abc_cities: vector of city IDs containing missiles of Class A, B, or C
     // Add more scenarios as needed
 };

@@ -32,7 +32,7 @@ void Simulator::run(int scenario_num)
         //     break;
 
     case 3:
-        scenario_3();
+        // scenario_3();
         break;
 
         // case 4:
@@ -162,11 +162,6 @@ void Simulator::scenario_1()
             results.push_back(res);
         }
     }
-    /*
-        TODO: یه مشکلی داره ممکنه اصلا به هدفی نرسه
-        اگر یه مسیری فقط ابتداش کمی دور تر بشیم از دشمن ولی در انتها بتونیم بهش اصابت کنیم ممکنه در رقابت با مسیری که ابتدا سریع تر به دشمن نزدیک میشه ولی در اخر هیچ راهی برای رسیدن به دشمن نمیزاره ببازه!
-        از سری مشکلات الگوریتم های گریدی
-    */
 }
 
 void Simulator::scenario_2(std::vector<int> &a_cities)
@@ -191,7 +186,6 @@ void Simulator::scenario_2(std::vector<int> &a_cities)
                     closest_ec_id = ec;
                 }
             }
-
             // Class A missile range: 2500
             if (short_d < 2500)
             {
@@ -254,33 +248,31 @@ void Simulator::scenario_2(std::vector<int> &a_cities)
                         {
                             graph.set_missile_count(a, "A1", 0);
                             graph.set_missile_count(a, "A2", 0);
+                            ;
                             graph.set_missile_count(a, "A3", 0);
+                            ;
                         }
                         else if (spies_count == 3)
                         {
                             graph.set_missile_count(a, "A1", 0);
+                            ;
                             graph.set_missile_count(a, "A2", 0);
+                            ;
                         }
                         else if (spies_count == 2)
                         {
                             graph.set_missile_count(a, "A2", 0);
+                            ;
                         }
-                        long long damage = (graph.get_city(a).get_missile_stock().at("A1") * 100) +
-                                           (graph.get_city(a).get_missile_stock().at("A2") * 130) + 
-                                           (graph.get_city(a).get_missile_stock().at("A3") * 25);
-                        if (damage > 0)
+                        if ((graph.get_city(a).get_missile_stock().at("A1") * 100) + (graph.get_city(a).get_missile_stock().at("A2") * 130) + (graph.get_city(a).get_missile_stock().at("A3") * 25) != 0)
                         {
                             paths.push_back(path);
-                            total_damage += damage;
                         }
+                        total_damage += (graph.get_city(a).get_missile_stock().at("A1") * 100) + (graph.get_city(a).get_missile_stock().at("A2") * 130) + (graph.get_city(a).get_missile_stock().at("A3") * 25);
                         break;
                     }
                     else
                     {
-                        paths.push_back(path);
-                        total_damage = (graph.get_city(a).get_missile_stock().at("A1") * 100) +
-                                       (graph.get_city(a).get_missile_stock().at("A2") * 130) + 
-                                       (graph.get_city(a).get_missile_stock().at("A3") * 25);
                         break;
                     }
                 }
@@ -293,7 +285,165 @@ void Simulator::scenario_2(std::vector<int> &a_cities)
     }
 }
 
-void Simulator::scenario_3() {}
+void Simulator::scenario_3(std::unordered_map<std::string, int> missile_counts)
+{
+    std::vector<int> friendly_bases = graph.get_friendly_city_ids();
+    std::vector<int> enemy_cities = graph.get_enemy_city_ids();
+
+    load_missiles missile_db;
+
+    // Utility: map string ID to correct missile object from database
+    auto getMissileByType = [&](const std::string &type) -> const Missile &
+    {
+        if (type == "B1")
+            return missile_db.get_ghadr313();
+        if (type == "B2")
+            return missile_db.get_tasua();
+        if (type == "C1")
+            return missile_db.get_said1();
+        if (type == "C")
+            return missile_db.get_tondar85();
+        throw std::runtime_error("Unknown missile type: " + type);
+    };
+
+    struct Result
+    {
+        std::string missile_type;
+        int base_id;
+        int target_city = -1;
+        bool hit_target = false;
+        bool destroyed = false;
+        bool detected = false;
+        double total_distance = 0;
+        double damage = 0;
+        std::vector<int> path;
+    };
+
+    std::vector<Result> results;
+    double total_damage = 0; // Total inflicted damage in this scenario
+
+    // 🔹 Step 1: assign missiles (given in missile_counts) to friendly bases
+    for (auto &[type, count] : missile_counts)
+    {
+        const Missile &m = getMissileByType(type);
+
+        while (count-- > 0)
+        {
+            int best_base = -1, best_enemy = -1;
+            double best_dis = std::numeric_limits<double>::max();
+
+            // Find best base–enemy pair where missile can reach
+            for (int base_id : friendly_bases)
+            {
+                for (int enemy_id : enemy_cities)
+                {
+                    double dis = graph.distance(base_id, enemy_id);
+                    if (dis <= m.get_range() && dis < best_dis)
+                    {
+                        best_dis = dis;
+                        best_base = base_id;
+                        best_enemy = enemy_id;
+                    }
+                }
+            }
+
+            if (best_base == -1 || best_enemy == -1)
+                continue;
+
+            // Increment stock in chosen base
+            City &base = graph.get_city(best_base);
+            base.missile_stock_increment(type);
+
+            Result res;
+            res.missile_type = type;
+            res.base_id = best_base;
+            res.path.push_back(best_base);
+
+            int current = best_base;
+            bool reached = false;
+            double traveled = 0;
+            int stealth = m.get_stealth(); // local copy, decreases when seen by spies
+
+            // 🔹 Step 2: try to route missile from base → enemy
+            while (!reached)
+            {
+                int next_city = -1;
+                double best_to_enemy = std::numeric_limits<double>::max();
+
+                // Explore candidate next cities
+                for (size_t i = 0; i < graph.city_count(); i++)
+                {
+                    if ((int)i == current)
+                        continue;
+                    double step = graph.distance(current, i);
+
+                    // Must be within missile uncontrolled range
+                    if (step <= m.get_uncontrolled_range())
+                    {
+                        // Direct hit possible
+                        if (i == best_enemy)
+                        {
+                            next_city = i;
+                            traveled += step;
+                            res.path.push_back(i);
+                            reached = true;
+                            break;
+                        }
+
+                        // Otherwise choose city closer to enemy, prefer no spies
+                        double d2enemy = graph.distance(i, best_enemy);
+                        if (d2enemy < best_to_enemy ||
+                            (d2enemy == best_to_enemy && !graph.get_city(i).get_has_spy()))
+                        {
+                            best_to_enemy = d2enemy;
+                            next_city = i;
+                        }
+                    }
+                }
+
+                if (reached)
+                    break;
+                if (next_city == -1)
+                    break; // No valid move → missile stuck
+
+                traveled += graph.distance(current, next_city);
+                current = next_city;
+                res.path.push_back(current);
+
+                City &c = graph.get_city(current);
+
+                // Spy detection: each spy reduces stealth level by 1
+                if (c.get_has_spy())
+                {
+                    stealth--;
+                    if (stealth <= 0)
+                        res.detected = true;
+                }
+
+                // Enemy defense: if missile is detected, defenses may shoot it down
+                if (c.get_city_status_int() == Enemy && c.get_defense_count() > 0 && res.detected)
+                {
+                    c.set_defense_count(c.get_defense_count() - 1); // consume one defense unit
+                    res.destroyed = true;
+                    break;
+                }
+            }
+
+            res.total_distance = traveled;
+            res.target_city = reached ? best_enemy : -1;
+
+            // Final outcome
+            if (reached && !res.destroyed)
+            {
+                res.hit_target = true;
+                res.damage = m.get_damage();
+                total_damage += res.damage; // accumulate scenario-wide damage
+            }
+
+            results.push_back(res);
+        }
+    }
+}
 
 void Simulator::scenario_4(std::vector<int> &abc_cities)
 {
@@ -319,9 +469,8 @@ void Simulator::scenario_4(std::vector<int> &abc_cities)
                           return a.second < b.second; // compare by distance
                       });
 
-            // Minimum range among missile classes A, B, and C
-            double missile_min_range = 0;
-
+            // Minimum missile range in the set
+            int missile_min_range = 0;
             // A1 range = A2 range = A3 range / B1 range = B2 range / C range + 100 = C1 rang
             if (graph.get_city(abc).get_missile_stock().at("A1") > 0 ||
                 graph.get_city(abc).get_missile_stock().at("A2") > 0 ||
@@ -343,27 +492,6 @@ void Simulator::scenario_4(std::vector<int> &abc_cities)
                 missile_min_range = missile_data.get_ghadr313().get_range();
             }
 
-            // Minimum uncontrolled range among missile classes A, B, and C
-            double min_uncontrolled_range = 0;
-
-            if (graph.get_city(abc).get_missile_stock().at("A1") > 0 ||
-                graph.get_city(abc).get_missile_stock().at("A2") > 0 ||
-                graph.get_city(abc).get_missile_stock().at("A3") > 0 ||
-                graph.get_city(abc).get_missile_stock().at("B1") > 0 ||
-                graph.get_city(abc).get_missile_stock().at("B2") > 0)
-            {
-                missile_min_range = missile_data.get_shahab7().get_uncontrolled_range();
-            }
-            else if (graph.get_city(abc).get_missile_stock().at("C1") > 0)
-            {
-                missile_min_range = missile_data.get_said1().get_range();
-
-            }
-            else if (graph.get_city(abc).get_missile_stock().at("C") > 0)
-            {
-                missile_min_range = missile_data.get_tondar85().get_range();
-            }
-
             // Closest enemy city: (city_id, distance)
             std::pair<int, double> closest_enemy_city;
 
@@ -378,125 +506,6 @@ void Simulator::scenario_4(std::vector<int> &abc_cities)
                 {
                     continue;
                 }
-            }
-
-            // Verify if the closest enemy city is within the minimum missile range
-            if (closest_enemy_city.second < missile_min_range)
-            {
-                int current_city = abc;
-                std::vector<int> path;
-
-                // Add the starting city to the path
-                path.push_back(abc);
-
-                // Number of spies encountered along the path
-                int spies_count = 0;
-
-                while (true)
-                {
-                    // Check if the current city is not an enemy city
-                    if (graph.get_city(current_city).get_city_status_int() != 3)
-                    {
-                        // Candidate cities for the missile's next move (Cities that don't have spies(ID, distance), Cities that have spies(ID, distance))
-                        std::pair<std::vector<std::pair<int, double>>, std::vector<std::pair<int, double>>> candidates;
-                        for (size_t i = 0; i < graph.city_count(); i++)
-                        {
-                            // Enemy city located west of the current city, within the uncontrolled range of Class A missiles (main conditions)
-                            if (graph.get_city(i).get_coordinates().first <= graph.get_city(current_city).get_coordinates().first && graph.distance(current_city, i) < min_uncontrolled_range)
-                            {
-                                if (!graph.get_city(i).get_has_spy())
-                                {
-                                    candidates.first.push_back({i, graph.distance(current_city, i)});
-                                }
-                                else
-                                {
-                                    candidates.second.push_back({i, graph.distance(current_city, i)});
-                                }
-                            }
-                            else
-                            {
-                                continue;
-                            }
-                        }
-                        // Sort candidate cities in ascending order of distance
-                        std::sort(candidates.first.begin(), candidates.first.end(), [](const std::pair<int, double> &a, const std::pair<int, double> &b)
-                                    { return a.second < b.second; });
-                        std::sort(candidates.second.begin(), candidates.second.end(), [](const std::pair<int, double> &a, const std::pair<int, double> &b)
-                                    { return a.second < b.second; });
-
-                        // Check if a city without any spies exists
-                        if (!candidates.first.empty())
-                        {
-                            current_city = candidates.first.front().first;
-                            path.push_back(candidates.first.front().first);
-                        }
-                        else if (!candidates.second.empty())
-                        {
-                            spies_count++;
-                            path.push_back(candidates.second.front().first);
-                        }
-                    }
-                    else if (graph.get_city(closest_enemy_city.first).get_defense_count() > 0)
-                    {
-                        if (spies_count >= 4)
-                        {
-                            graph.set_missile_count(abc, "A1", 0);
-                            graph.set_missile_count(abc, "A2", 0);
-                            graph.set_missile_count(abc, "A3", 0);
-                            graph.set_missile_count(abc, "B1", 0);
-                            graph.set_missile_count(abc, "B2", 0);
-                            graph.set_missile_count(abc, "C", 0);
-                            graph.set_missile_count(abc, "C1", 0);
-                        }
-                        else if (spies_count == 3)
-                        {
-                            graph.set_missile_count(abc, "A1", 0);
-                            graph.set_missile_count(abc, "A2", 0);
-                            graph.set_missile_count(abc, "B1", 0);
-                            graph.set_missile_count(abc, "B2", 0);
-                            graph.set_missile_count(abc, "C", 0);
-                            graph.set_missile_count(abc, "C1", 0);
-                        }
-                        else if (spies_count == 2)
-                        {
-                            graph.set_missile_count(abc, "A2", 0);
-                            graph.set_missile_count(abc, "B1", 0);
-                            graph.set_missile_count(abc, "B2", 0);
-                            graph.set_missile_count(abc, "C", 0);
-                            graph.set_missile_count(abc, "C1", 0);
-                        }
-
-                        long long damage = (graph.get_city(abc).get_missile_stock().at("A1") * missile_data.get_shahab7().get_damage()) +
-                                           (graph.get_city(abc).get_missile_stock().at("A2") * missile_data.get_hormuz3().get_damage()) + 
-                                           (graph.get_city(abc).get_missile_stock().at("A3") * missile_data.get_sejid().get_damage()) +
-                                           (graph.get_city(abc).get_missile_stock().at("B1") * missile_data.get_ghadr313().get_damage()) +
-                                           (graph.get_city(abc).get_missile_stock().at("B2") * missile_data.get_tasua().get_damage()) +
-                                           (graph.get_city(abc).get_missile_stock().at("C") * missile_data.get_tondar85().get_damage()) +
-                                           (graph.get_city(abc).get_missile_stock().at("C1") * missile_data.get_said1().get_damage());
-
-                        if (damage > 0)
-                        {
-                            paths.push_back(path);
-                            total_damage += damage;
-                        }
-                        break;
-                    }
-                    else
-                    {
-                        total_damage += (graph.get_city(abc).get_missile_stock().at("A1") * missile_data.get_shahab7().get_damage()) +
-                                        (graph.get_city(abc).get_missile_stock().at("A2") * missile_data.get_hormuz3().get_damage()) + 
-                                        (graph.get_city(abc).get_missile_stock().at("A3") * missile_data.get_sejid().get_damage()) +
-                                        (graph.get_city(abc).get_missile_stock().at("B1") * missile_data.get_ghadr313().get_damage()) +
-                                        (graph.get_city(abc).get_missile_stock().at("B2") * missile_data.get_tasua().get_damage()) +
-                                        (graph.get_city(abc).get_missile_stock().at("C") * missile_data.get_tondar85().get_damage()) +
-                                        (graph.get_city(abc).get_missile_stock().at("C1") * missile_data.get_said1().get_damage());
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                continue;
             }
         }
     }

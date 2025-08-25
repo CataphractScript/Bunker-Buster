@@ -31,7 +31,7 @@ public:
     size_t city_count() const { return friendly_cities.size() + enemy_cities.size() + neutral_cities.size(); }
 
     // Access city by ID
-    const City &get_city(int id) const;
+    City &get_city(int id);
 
     // Check if city exists
     bool has_city(int id) const;
