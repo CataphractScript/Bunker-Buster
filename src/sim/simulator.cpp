@@ -265,15 +265,22 @@ void Simulator::scenario_2(std::vector<int> &a_cities)
                         {
                             graph.set_missile_count(a, "A2", 0);
                         }
-                        if ((graph.get_city(a).get_missile_stock().at("A1") * 100) + (graph.get_city(a).get_missile_stock().at("A2") * 130) + (graph.get_city(a).get_missile_stock().at("A3") * 25) != 0)
+                        long long damage = (graph.get_city(a).get_missile_stock().at("A1") * 100) +
+                                           (graph.get_city(a).get_missile_stock().at("A2") * 130) + 
+                                           (graph.get_city(a).get_missile_stock().at("A3") * 25);
+                        if (damage > 0)
                         {
                             paths.push_back(path);
+                            total_damage += damage;
                         }
-                        total_damage += (graph.get_city(a).get_missile_stock().at("A1") * 100) + (graph.get_city(a).get_missile_stock().at("A2") * 130) + (graph.get_city(a).get_missile_stock().at("A3") * 25);
                         break;
                     }
                     else
                     {
+                        paths.push_back(path);
+                        total_damage = (graph.get_city(a).get_missile_stock().at("A1") * 100) +
+                                       (graph.get_city(a).get_missile_stock().at("A2") * 130) + 
+                                       (graph.get_city(a).get_missile_stock().at("A3") * 25);
                         break;
                     }
                 }
@@ -325,7 +332,6 @@ void Simulator::scenario_4(std::vector<int> &abc_cities)
             else if (graph.get_city(abc).get_missile_stock().at("C") > 0)
             {
                 missile_min_range = missile_data.get_tondar85().get_range();
-
             }
             else if (graph.get_city(abc).get_missile_stock().at("C1") > 0)
             {
@@ -372,18 +378,126 @@ void Simulator::scenario_4(std::vector<int> &abc_cities)
                 {
                     continue;
                 }
-            }    
+            }
 
-            int current_city = abc;
-            std::vector<int> path;
+            // Verify if the closest enemy city is within the minimum missile range
+            if (closest_enemy_city.second < missile_min_range)
+            {
+                int current_city = abc;
+                std::vector<int> path;
 
-            // Add the starting city to the path
-            path.push_back(abc);
+                // Add the starting city to the path
+                path.push_back(abc);
 
-            // Number of spies encountered along the path
-            int spies_count = 0;
+                // Number of spies encountered along the path
+                int spies_count = 0;
 
-            //...
+                while (true)
+                {
+                    // Check if the current city is not an enemy city
+                    if (graph.get_city(current_city).get_city_status_int() != 3)
+                    {
+                        // Candidate cities for the missile's next move (Cities that don't have spies(ID, distance), Cities that have spies(ID, distance))
+                        std::pair<std::vector<std::pair<int, double>>, std::vector<std::pair<int, double>>> candidates;
+                        for (size_t i = 0; i < graph.city_count(); i++)
+                        {
+                            // Enemy city located west of the current city, within the uncontrolled range of Class A missiles (main conditions)
+                            if (graph.get_city(i).get_coordinates().first <= graph.get_city(current_city).get_coordinates().first && graph.distance(current_city, i) < min_uncontrolled_range)
+                            {
+                                if (!graph.get_city(i).get_has_spy())
+                                {
+                                    candidates.first.push_back({i, graph.distance(current_city, i)});
+                                }
+                                else
+                                {
+                                    candidates.second.push_back({i, graph.distance(current_city, i)});
+                                }
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                        }
+                        // Sort candidate cities in ascending order of distance
+                        std::sort(candidates.first.begin(), candidates.first.end(), [](const std::pair<int, double> &a, const std::pair<int, double> &b)
+                                    { return a.second < b.second; });
+                        std::sort(candidates.second.begin(), candidates.second.end(), [](const std::pair<int, double> &a, const std::pair<int, double> &b)
+                                    { return a.second < b.second; });
+
+                        // Check if a city without any spies exists
+                        if (!candidates.first.empty())
+                        {
+                            current_city = candidates.first.front().first;
+                            path.push_back(candidates.first.front().first);
+                        }
+                        else if (!candidates.second.empty())
+                        {
+                            spies_count++;
+                            path.push_back(candidates.second.front().first);
+                        }
+                    }
+                    else if (graph.get_city(closest_enemy_city.first).get_defense_count() > 0)
+                    {
+                        if (spies_count >= 4)
+                        {
+                            graph.set_missile_count(abc, "A1", 0);
+                            graph.set_missile_count(abc, "A2", 0);
+                            graph.set_missile_count(abc, "A3", 0);
+                            graph.set_missile_count(abc, "B1", 0);
+                            graph.set_missile_count(abc, "B2", 0);
+                            graph.set_missile_count(abc, "C", 0);
+                            graph.set_missile_count(abc, "C1", 0);
+                        }
+                        else if (spies_count == 3)
+                        {
+                            graph.set_missile_count(abc, "A1", 0);
+                            graph.set_missile_count(abc, "A2", 0);
+                            graph.set_missile_count(abc, "B1", 0);
+                            graph.set_missile_count(abc, "B2", 0);
+                            graph.set_missile_count(abc, "C", 0);
+                            graph.set_missile_count(abc, "C1", 0);
+                        }
+                        else if (spies_count == 2)
+                        {
+                            graph.set_missile_count(abc, "A2", 0);
+                            graph.set_missile_count(abc, "B1", 0);
+                            graph.set_missile_count(abc, "B2", 0);
+                            graph.set_missile_count(abc, "C", 0);
+                            graph.set_missile_count(abc, "C1", 0);
+                        }
+
+                        long long damage = (graph.get_city(abc).get_missile_stock().at("A1") * missile_data.get_shahab7().get_damage()) +
+                                           (graph.get_city(abc).get_missile_stock().at("A2") * missile_data.get_hormuz3().get_damage()) + 
+                                           (graph.get_city(abc).get_missile_stock().at("A3") * missile_data.get_sejid().get_damage()) +
+                                           (graph.get_city(abc).get_missile_stock().at("B1") * missile_data.get_ghadr313().get_damage()) +
+                                           (graph.get_city(abc).get_missile_stock().at("B2") * missile_data.get_tasua().get_damage()) +
+                                           (graph.get_city(abc).get_missile_stock().at("C") * missile_data.get_tondar85().get_damage()) +
+                                           (graph.get_city(abc).get_missile_stock().at("C1") * missile_data.get_said1().get_damage());
+
+                        if (damage > 0)
+                        {
+                            paths.push_back(path);
+                            total_damage += damage;
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        total_damage += (graph.get_city(abc).get_missile_stock().at("A1") * missile_data.get_shahab7().get_damage()) +
+                                        (graph.get_city(abc).get_missile_stock().at("A2") * missile_data.get_hormuz3().get_damage()) + 
+                                        (graph.get_city(abc).get_missile_stock().at("A3") * missile_data.get_sejid().get_damage()) +
+                                        (graph.get_city(abc).get_missile_stock().at("B1") * missile_data.get_ghadr313().get_damage()) +
+                                        (graph.get_city(abc).get_missile_stock().at("B2") * missile_data.get_tasua().get_damage()) +
+                                        (graph.get_city(abc).get_missile_stock().at("C") * missile_data.get_tondar85().get_damage()) +
+                                        (graph.get_city(abc).get_missile_stock().at("C1") * missile_data.get_said1().get_damage());
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                continue;
+            }
         }
     }
 }
