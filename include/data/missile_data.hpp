@@ -1,9 +1,6 @@
 #pragma once
 
 #include <vector>
-#include "../include/domain/missile.hpp"
-
-
 
 class load_missiles {
     private:
