@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../domain/missile.hpp"
+
 #include <vector>
 
 class load_missiles {
