@@ -12,8 +12,8 @@ class Simulator
 {
 private:
     long long total_damage; // Stores total damage calculated in scenarios
+    std::vector<std::vector<int>> paths;
     Graph graph;
-    Missile missile;
     load_missiles missile_data;
 
 public:
@@ -24,15 +24,14 @@ public:
     Graph get_graph() const;
     void set_graph(const Graph& g);
 
-    Missile get_missile() const;
-    void set_missile(const Missile& m);
-
+    std::vector<std::vector<int>> get_paths() const;
+    
     // Run a scenario based on the scenario number
     void run(int scenario_num);
 
     // Different scenario functions
     void scenario_1();
-    void scenario_2(std::vector<int>& a_cities);
+    void scenario_2(/*std::vector<int> &a_cities*/);
     void scenario_3(std::unordered_map<std::string, int>);
     void scenario_4(std::vector<int>& abc_cities); // abc_cities: vector of city IDs containing missiles of Class A, B, or C
     // Add more scenarios as needed

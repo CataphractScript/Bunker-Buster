@@ -4,6 +4,7 @@
 #include "../../include/graph/graph.hpp"
 #include "../../include/data/missile_data.hpp"
 
+#include <tuple>
 #include <limits>
 #include <algorithm>
 #include <utility>
@@ -15,8 +16,7 @@ Simulator::Simulator() : total_damage(0) {}
 Graph Simulator::get_graph() const { return graph; }
 void Simulator::set_graph(const Graph &g) { graph = g; }
 
-Missile Simulator::get_missile() const { return missile; }
-void Simulator::set_missile(const Missile &m) { missile = m; }
+std::vector<std::vector<int>> Simulator::get_paths() const { return paths; }
 
 // Run the scenario corresponding to scenario_num
 void Simulator::run(int scenario_num)
@@ -24,12 +24,14 @@ void Simulator::run(int scenario_num)
     switch (scenario_num)
     {
     case 1:
+        paths = {};
         scenario_1();
         break;
 
-        // case 2:
-        //     scenario_2();
-        //     break;
+    case 2:
+        paths = {};
+        scenario_2();
+        break;
 
     case 3:
         // scenario_3();
@@ -164,12 +166,13 @@ void Simulator::scenario_1()
     }
 }
 
-void Simulator::scenario_2(std::vector<int> &a_cities)
+void Simulator::scenario_2(/*std::vector<int> &a_cities*/)
 {
+    std::vector<int> friendly_cities = graph.get_friendly_city_ids();
     std::vector<int> enemy_cities = graph.get_enemy_city_ids();
     std::vector<std::vector<int>> paths;
 
-    for (const int &a : a_cities)
+    for (const int &a : /*a_cities*/friendly_cities)
     {
         if (graph.get_city(a).get_missile_count() > 0)
         {
@@ -186,6 +189,7 @@ void Simulator::scenario_2(std::vector<int> &a_cities)
                     closest_ec_id = ec;
                 }
             }
+
             // Class A missile range: 2500
             if (short_d < 2500)
             {
@@ -198,13 +202,16 @@ void Simulator::scenario_2(std::vector<int> &a_cities)
                 // Number of spies encountered along the path
                 int spies_count = 0;
 
+                // ...
+                int sokht = 2500;
+
                 while (true)
                 {
                     // Check if the current city is not an enemy city
                     if (graph.get_city(current_city).get_city_status_int() != 3)
                     {
-                        // Candidate cities for the missile's next move (Cities that don't have spies(ID, distance), Cities that have spies(ID, distance))
-                        std::pair<std::vector<std::pair<int, double>>, std::vector<std::pair<int, double>>> candidates;
+                        // Candidate cities for the missile's next move (Cities that don't have spies(ID, distance to start city, distance to enemy city), Cities that have spies(ID, distance to start city, distance to enemy city))
+                        std::pair<std::vector<std::tuple<int, double, double>>, std::vector<std::tuple<int, double, double>>> candidates;
                         for (size_t i = 0; i < graph.city_count(); i++)
                         {
                             // Enemy city located west of the current city, within the uncontrolled range of Class A missiles (main conditions)
@@ -212,11 +219,11 @@ void Simulator::scenario_2(std::vector<int> &a_cities)
                             {
                                 if (!graph.get_city(i).get_has_spy())
                                 {
-                                    candidates.first.push_back({i, graph.distance(current_city, i)});
+                                    candidates.first.push_back({i, graph.distance(current_city, i), graph.distance(closest_ec_id, i)});
                                 }
                                 else
                                 {
-                                    candidates.second.push_back({i, graph.distance(current_city, i)});
+                                    candidates.second.push_back({i, graph.distance(current_city, i), graph.distance(closest_ec_id, i)});
                                 }
                             }
                             else
@@ -225,22 +232,34 @@ void Simulator::scenario_2(std::vector<int> &a_cities)
                             }
                         }
                         // Sort candidate cities in ascending order of distance
-                        std::sort(candidates.first.begin(), candidates.first.end(), [](const std::pair<int, double> &a, const std::pair<int, double> &b)
-                                  { return a.second < b.second; });
-                        std::sort(candidates.second.begin(), candidates.second.end(), [](const std::pair<int, double> &a, const std::pair<int, double> &b)
-                                  { return a.second < b.second; });
+                        std::sort(candidates.first.begin(), candidates.first.end(), [](const std::tuple<int, double, double> &a, const std::tuple<int, double, double> &b)
+                                  { return std::get<2>(a) < std::get<2>(b); });
+                        std::sort(candidates.second.begin(), candidates.second.end(), [](const std::tuple<int, double, double> &a, const std::tuple<int, double, double> &b)
+                                  { return std::get<2>(a) < std::get<2>(b); });
+                        
+                        // ...
+                        if (sokht > 0)
+                        {
+                            // Check if a city without any spies exists
+                            if (!candidates.first.empty())
+                            {
+                                current_city = std::get<0>(candidates.first.front());
+                                path.push_back(std::get<0>(candidates.first.front()));
+                                sokht -= std::get<1>(candidates.first.front());
+                            }
+                            else if (!candidates.second.empty())
+                            {
+                                spies_count++;
+                                current_city = std::get<0>(candidates.second.front());
+                                path.push_back(std::get<0>(candidates.second.front()));
+                                sokht -= std::get<1>(candidates.first.front());
+                            }                            
+                        }
+                        else
+                        {
+                            break;
+                        }
 
-                        // Check if a city without any spies exists
-                        if (!candidates.first.empty())
-                        {
-                            current_city = candidates.first.front().first;
-                            path.push_back(candidates.first.front().first);
-                        }
-                        else if (!candidates.second.empty())
-                        {
-                            spies_count++;
-                            path.push_back(candidates.second.front().first);
-                        }
                     }
                     else if (graph.get_city(closest_ec_id).get_defense_count() > 0)
                     {
@@ -248,21 +267,16 @@ void Simulator::scenario_2(std::vector<int> &a_cities)
                         {
                             graph.set_missile_count(a, "A1", 0);
                             graph.set_missile_count(a, "A2", 0);
-                            ;
                             graph.set_missile_count(a, "A3", 0);
-                            ;
                         }
                         else if (spies_count == 3)
                         {
                             graph.set_missile_count(a, "A1", 0);
-                            ;
                             graph.set_missile_count(a, "A2", 0);
-                            ;
                         }
                         else if (spies_count == 2)
                         {
                             graph.set_missile_count(a, "A2", 0);
-                            ;
                         }
                         if ((graph.get_city(a).get_missile_stock().at("A1") * 100) + (graph.get_city(a).get_missile_stock().at("A2") * 130) + (graph.get_city(a).get_missile_stock().at("A3") * 25) != 0)
                         {
@@ -281,6 +295,10 @@ void Simulator::scenario_2(std::vector<int> &a_cities)
             {
                 continue;
             }
+        }
+        else 
+        {
+            continue;
         }
     }
 }
