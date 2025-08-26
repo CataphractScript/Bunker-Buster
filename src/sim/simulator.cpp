@@ -55,7 +55,7 @@ void Simulator::run(int scenario_num)
             std::cout << "{" << Simulator::graph.get_city(c).get_city_status_str() << ", "
                              << Simulator::graph.get_city(c).get_country() << ", "
                              << "(" << Simulator::graph.get_city(c).get_coordinates().first << "," << Simulator::graph.get_city(c).get_coordinates().second
-                             << "}";
+                             << "}" << std::endl;
         }
     }
 }
