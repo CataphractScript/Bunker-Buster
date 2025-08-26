@@ -41,7 +41,7 @@ public:
     std::vector<int> get_enemy_city_ids() const;
     std::vector<int> get_neutral_city_ids() const;
 
-    void Graph::set_missile_count(int id, std::string class_id, int number);
+    void set_missile_count(int id, std::string class_id, int number);
 };
 
 #endif // GRAPH_HPP
