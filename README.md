@@ -130,8 +130,11 @@ cd Release
 
 The program loads a predefined scenario (in `src/data/graph_data.cpp`) and prints computed paths to stdout. Example output:
 ```
-1   3   5
-2   4   6
+Total damage: 1130
+{IRN, Friendly, (500, 700)}
+{SYR, Neutral, (280, 680)}
+{JOR, Neutral, (300, 520)}
+{ISR, Enemy, (220, 460)}
 ```
 
 ---

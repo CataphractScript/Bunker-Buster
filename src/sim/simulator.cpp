@@ -45,19 +45,19 @@ void Simulator::run(int scenario_num)
 
     default:
         std::cout << "Invalid scenario number!" << std::endl;
-        for (const std::vector<int> &path : paths) {
-            for (const int &c : path) {
-                std::cout << "{" << Simulator::graph.get_city(c).get_city_status_str() << ", "
-                                 << Simulator::graph.get_city(c).get_country() << ", "
-                                 << "(" << Simulator::graph.get_city(c).get_coordinates().first << "," << Simulator::graph.get_city(c).get_coordinates().second
-                                 << "}";
-            }
-        }
         break;
     }
 
     // After running the scenario, display total damage
     std::cout << "Total damage: " << total_damage << std::endl;
+    for (const std::vector<int> &path : paths) {
+        for (const int &c : path) {
+            std::cout << "{" << Simulator::graph.get_city(c).get_city_status_str() << ", "
+                             << Simulator::graph.get_city(c).get_country() << ", "
+                             << "(" << Simulator::graph.get_city(c).get_coordinates().first << "," << Simulator::graph.get_city(c).get_coordinates().second
+                             << "}";
+        }
+    }
 }
 
 void Simulator::scenario_1()
