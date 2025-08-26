@@ -1,106 +1,147 @@
-# Bunker-Buster
+# 🚀 Bunker-Buster — Final README
 
-## 📌 Project Overview
+## 📖 What is this?
+**Bunker-Buster** is a small **C++17** graph-based simulation project. It models a network of cities (friendly / neutral / enemy) with missiles and simulates scenarios to compute paths and damage. The design is modular: headers live under `include/` and implementation under `src/` so it's straightforward to extend.
 
-**Bunker-Buster** is a final project for the "Algorithms Design and Analysis" course, implemented in C++. The main goal of this project is to develop missile routing algorithms to maximize damage in simulated war scenarios. This project is also referred to as **“Sangar Shekan.”**
+---
 
-## 🧠 Objective and Applications
+## 🗂️ Project layout (actual)
 
-The project simulates a war scenario where strategic missiles must be optimally launched at various targets (such as bunkers and military installations) to inflict maximum damage. The algorithms can be used for military analysis, strategic planning, and simulation purposes.
+```
+Bunker-Buster/
+  .git
+  .gitignore
+  LICENSE
+  README.md
+  docs
+  include
+  main.cpp
+  src
+```
+### Source files (for build)
 
-## ⚙️ Key Features
+- `main.cpp`
+- `src/data/graph_data.cpp`
+- `src/data/missile_data.cpp`
+- `src/domain/city.cpp`
+- `src/domain/missile.cpp`
+- `src/graph/graph.cpp`
+- `src/sim/simulator.cpp`
 
-* Implementation of optimized pathfinding algorithms for missiles
-* Simulation of war scenarios with multiple targets
-* Analysis and evaluation of algorithm performance under different conditions
-* Use of advanced data structures to enhance computational efficiency
+### Header files (API)
 
-## 🛠️ Project Structure
+- `include/data/graph_data.hpp`
+- `include/data/missile_data.hpp`
+- `include/domain/city.hpp`
+- `include/domain/missile.hpp`
+- `include/graph/graph.hpp`
+- `include/sim/simulator.hpp`
 
-The repository is organized as follows:
+---
 
-* `src/`: Contains source code
-* `include/`: Contains header files
-* `docs/`: Project documentation
-* `LICENSE`: License file
+## ⚙️ Build & Run (recommended)
 
-## 📥 How to Run
-
-Clone the repository:
+### Option A — Quick g++ build (single command)
+From the project root (the folder that contains `main.cpp` and `src/`):
 
 ```bash
-git clone https://github.com/M-M-Soleimani/Bunker-Buster.git
+g++ -std=c++17 -Iinclude main.cpp main.cpp src/data/graph_data.cpp src/data/missile_data.cpp src/domain/city.cpp src/domain/missile.cpp src/graph/graph.cpp src/sim/simulator.cpp -o bunker-buster
 ```
 
-Navigate into the project directory:
+> If your shell supports globs you can also run:
+> ```bash
+> g++ -std=c++17 -Iinclude main.cpp src/**/*.cpp -o bunker-buster
+> ```
 
+### Option B — Using a simple CMakeLists.txt (recommended for larger development)
+Create `CMakeLists.txt` at project root with:
+
+```cmake
+cmake_minimum_required(VERSION 3.10)
+project(BunkerBuster LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include_directories(${PROJECT_SOURCE_DIR}/include)
+
+file(GLOB_RECURSE SRC_FILES "src/*.cpp" "*.cpp")
+
+add_executable(bunker-buster ${SRC_FILES} main.cpp)
+```
+Then:
 ```bash
-cd Bunker-Buster
+mkdir build && cd build
+cmake ..
+cmake --build . --config Release
 ```
 
-Compile and run the project:
-
+### Run
 ```bash
-g++ -o bunker_buster src/*.cpp
-./bunker_buster
+./bunker-buster
 ```
 
-## 🧩 Algorithms and Project Logic
+The program loads a predefined scenario (in `src/data/graph_data.cpp`) and prints computed paths to stdout. Example output:
+```
+1   3   5
+2   4   6
+```
 
-The project includes four main scenarios, each using different algorithms for missile pathfinding and targeting:
+---
 
-### 1️⃣ Scenario 1: Launching D-Class Missiles
+## 🧭 Available Scenarios / API (developer-facing)
 
-* **Algorithm:** Step-by-step search selecting the nearest city to the target
-* **Logic:**
+The `Simulator` class (headers in `include/sim/simulator.hpp`) exposes:
+- `Simulator()` — constructor
+- `void set_graph(const Graph& g)` — set the graph to simulate
+- `void run(int scenario_num)` — run a scenario by number (used by `main.cpp`)
+- `std::vector<std::vector<int>> get_paths() const` — get computed paths after `run()`
+- `scenario_1()`, `scenario_2()`, `scenario_3(...)`, `scenario_4(...)` — internal scenario helpers you can call/extend
 
-  * Launch all D-class missiles from friendly cities.
-  * For each missile, the path toward the nearest enemy city is calculated.
-  * If a city along the path has a spy, the missile may be detected.
-  * The missile proceeds until it hits the target or cannot find a valid path.
-* **Note:** This scenario is a **Greedy Search**, always selecting the next step closest to the target.
+Helper functions to build graphs are provided in `include/data/graph_data.hpp` (e.g. `load_graph_for_scenario2()`), which returns a `Graph` populated with `City` nodes (friendly/neutral/enemy).
 
-### 2️⃣ Scenario 2: Launching A-Class Missiles
+**Tip:** To add a new scenario:
+1. Add a `scenario_N()` method in `src/sim/simulator.cpp` and declare it in the header.
+2. Call it from `run(int scenario_num)`.
+3. Optionally add a new `load_graph_for_scenarioN()` in `src/data/graph_data.cpp` to create a graph tailored to that scenario.
 
-* **Algorithm:** Constrained path search considering range and spy detection
-* **Logic:**
+---
 
-  * Possible paths are evaluated to minimize distance to enemy cities while avoiding spies.
-  * If the number of spies along the path exceeds a limit, the missile is canceled or destroyed.
-* **Note:** A combination of **Greedy Search with constraints**.
+## 🧩 Design notes & important files
+- `include/` — public headers (graph, domain, sim, data interfaces)
+- `src/` — implementation (`graph.cpp`, `simulator.cpp`, `domain/*.cpp`, `data/*.cpp`)
+- `main.cpp` — example entrypoint that uses `Simulator` and `load_graph_for_scenario2()`
+- `src/data/graph_data.cpp` — contains the scenario used by default (country/city setup)
 
-### 3️⃣ Scenario 3: Launching B1, B2, C, and C1 Missiles
+---
 
-* **Algorithm:** Range-based pathfinding with stealth considerations
-* **Logic:**
+## 🛠️ Common pitfalls & troubleshooting
+- **Missing include path**: Use `-Iinclude` (or configure your IDE to add the `include/` directory) otherwise headers won't be found.
+- **Order of files**: When compiling manually, include all `.cpp` files or compile into object files and link.
+- **C++ standard**: Use `-std=c++17` (some code uses C++17 features).
+- **Undefined references**: If you forget to compile/link one of the `src/*.cpp` files you'll get undefined symbol errors — include them all.
 
-  * Missiles of types **B1, B2, C, and C1** are assigned to friendly bases capable of reaching enemy targets.
-  * The path from base to target considers:
+---
 
-    * Missile range
-    * Presence of spies along the path
-    * Enemy defenses at the target city
-  * Each time a missile passes through a city with a spy, its **stealth** value decreases.
+## 🤝 Contributing
+Contributions, bug reports and feature ideas are welcome. Please:
+1. Fork the repo
+2. Add tests or examples for new scenarios
+3. Open a PR with a clear description
 
-    * If stealth drops to zero, the missile is **detected** and may be destroyed by enemy defenses.
-  * Only missiles that successfully reach the target without being destroyed inflict damage.
-* **Note:** This scenario combines **Greedy path selection** with **stealth-aware decision-making** to maximize successful hits while avoiding detection.
+Add a small `ISSUE_TEMPLATE.md`/`CONTRIBUTING.md` if this becomes a public project.
 
-### 4️⃣ Scenario 4: Launching A, B, and C Missiles at the Nearest Target
+---
 
-* **Algorithm:** Nearest-Neighbor search based on missile range
-* **Logic:**
+## 🧾 License
+See the `LICENSE` file in the repository root.
 
-  * For each base, the nearest enemy city within missile range is selected.
-  * Paths and spy detection are considered to maximize the chance of successful hits.
-* **Note:** **Nearest-Neighbor Search with range and detection constraints**.
+---
 
-### ⚡ Summary of Algorithms
+## 📬 Contact / Next steps
+If you want, I can also:
+- Add a `CMakeLists.txt` to this repo and commit it.
+- Create a small example that demonstrates building and running **scenario_1** and **scenario_2**.
+- Add unit tests (Catch2/GoogleTest) for `Graph` and `Simulator`.
 
-* The project uses a combination of **Greedy Search**, **Constraint-based Search**, and **Stealth-aware Pathfinding**.
-* Decisions are based on **distance, missile range, presence of spies, and enemy defenses**.
-* The project allows simulation and analysis of various missile attack strategies.
-
-## 📄 License
-
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+Happy to make any of those — tell me which you'd like! ✅

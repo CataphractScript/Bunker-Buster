@@ -17,6 +17,10 @@ City::City(const std::string& country_in, const std::pair<int, int>& coord, cons
     set_defense_count(def);
     set_missiles(missile_in);
     set_missile_stock(missile_stock_in);
+
+    for (const auto& pair : missile_stock_in) {
+        missile_count += pair.second;
+    }
 }
 
 // Implement getters and setters
