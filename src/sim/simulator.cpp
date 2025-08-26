@@ -33,16 +33,26 @@ void Simulator::run(int scenario_num)
         scenario_2();
         break;
 
-    case 3:
-        // scenario_3();
-        break;
+    // case 3:
+    //     paths = {};
+    //     scenario_3();
+    //     break;
 
-        // case 4:
-        //     scenario_4();
-        //     break;
+    case 4:
+        paths = {};
+        scenario_4();
+        break;
 
     default:
         std::cout << "Invalid scenario number!" << std::endl;
+        for (const std::vector<int> &path : paths) {
+            for (const int &c : path) {
+                std::cout << "{" << Simulator::graph.get_city(c).get_city_status_str() << ", "
+                                 << Simulator::graph.get_city(c).get_country() << ", "
+                                 << "(" << Simulator::graph.get_city(c).get_coordinates().first << "," << Simulator::graph.get_city(c).get_coordinates().second
+                                 << "}";
+            }
+        }
         break;
     }
 
@@ -166,7 +176,7 @@ void Simulator::scenario_1()
     }
 }
 
-void Simulator::scenario_2(/*std::vector<int> &a_cities*/)
+void Simulator::scenario_2()
 {
     std::vector<int> friendly_cities = graph.get_friendly_city_ids();
     std::vector<int> enemy_cities = graph.get_enemy_city_ids();
@@ -463,21 +473,22 @@ void Simulator::scenario_3(std::unordered_map<std::string, int> missile_counts)
     }
 }
 
-void Simulator::scenario_4(std::vector<int> &abc_cities)
+void Simulator::scenario_4()
 {
+    std::vector<int> friendly_cities = graph.get_friendly_city_ids();
     std::vector<int> enemy_cities = graph.get_enemy_city_ids();
     std::vector<std::vector<int>> paths;
 
-    for (const int &abc : abc_cities)
+    for (const int &fc : friendly_cities)
     {
-        if (graph.get_city(abc).get_missile_count() > 0)
+        if (graph.get_city(fc).get_missile_count() > 0)
         {
             // Vector of enemy cities with their distances: (city_id, distance)
             std::vector<std::pair<int, double>> enemy_cities_with_distances;
 
             for (const int &ec : enemy_cities)
             {
-                enemy_cities_with_distances.push_back({ec, graph.distance(abc, ec)});
+                enemy_cities_with_distances.push_back({ec, graph.distance(fc, ec)});
             }
 
             // Sort ascending by distance
@@ -490,22 +501,22 @@ void Simulator::scenario_4(std::vector<int> &abc_cities)
             // Minimum missile range in the set
             int missile_min_range = 0;
             // A1 range = A2 range = A3 range / B1 range = B2 range / C range + 100 = C1 rang
-            if (graph.get_city(abc).get_missile_stock().at("A1") > 0 ||
-                graph.get_city(abc).get_missile_stock().at("A2") > 0 ||
-                graph.get_city(abc).get_missile_stock().at("A3") > 0)
+            if (graph.get_city(fc).get_missile_stock().at("A1") > 0 ||
+                graph.get_city(fc).get_missile_stock().at("A2") > 0 ||
+                graph.get_city(fc).get_missile_stock().at("A3") > 0)
             {
                 missile_min_range = missile_data.get_shahab7().get_range();
             }
-            else if (graph.get_city(abc).get_missile_stock().at("C") > 0)
+            else if (graph.get_city(fc).get_missile_stock().at("C") > 0)
             {
                 missile_min_range = missile_data.get_tondar85().get_range();
             }
-            else if (graph.get_city(abc).get_missile_stock().at("C1") > 0)
+            else if (graph.get_city(fc).get_missile_stock().at("C1") > 0)
             {
                 missile_min_range = missile_data.get_said1().get_range();
             }
-            else if (graph.get_city(abc).get_missile_stock().at("B1") > 0 ||
-                     graph.get_city(abc).get_missile_stock().at("B2") > 0)
+            else if (graph.get_city(fc).get_missile_stock().at("B1") > 0 ||
+                     graph.get_city(fc).get_missile_stock().at("B2") > 0)
             {
                 missile_min_range = missile_data.get_ghadr313().get_range();
             }
