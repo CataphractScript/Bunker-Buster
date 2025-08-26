@@ -29,4 +29,3 @@ class load_missiles {
         const Missile& get_tondar85() const;
         const Missile& get_sangar_shekan() const;
 };
-
