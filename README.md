@@ -123,14 +123,13 @@ Or
 Then:
 ```bash
 mkdir build && cd build
-cmake ..
-cmake --build . --config Release
+cmake -G "MinGW Makefiles" ..
+mingw32-make
 ```
 
 ### Run
 ```bash
-cd Release
-./BunkerBuster.exe
+./bunker_buster.exe
 ```
 
 The program loads a predefined scenario (in `src/data/graph_data.cpp`) and prints computed paths to stdout. Example output:
