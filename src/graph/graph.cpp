@@ -1,4 +1,8 @@
 #include "../../include/graph/graph.hpp"
+#include "../../include/domain/city.hpp"
+
+#include <iostream>
+#include <vector>
 
 void Graph::add_city(const City &c)
 {
