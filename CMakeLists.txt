@@ -1,33 +1,39 @@
-# Set the minimum required version of CMake
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15)
 
-# Define the project name and language
-project(BunkerBuster LANGUAGES CXX)
+project(BunkerBuster VERSION 1.0 LANGUAGES CXX)
 
-# Set the C++ standard (C++17 in this case)
+# Use at least C++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Collect all source files from src/ and main.cpp
-file(GLOB_RECURSE SOURCES
-    "${PROJECT_SOURCE_DIR}/src/*.cpp"
-    "${PROJECT_SOURCE_DIR}/main.cpp"
-)
-
-# Create the executable target
-add_executable(${PROJECT_NAME} ${SOURCES})
-
-# Include directory scoped to the target
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
-
-# Set compiler warnings
+# Compiler warnings
 if(MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /permissive-)
+    add_compile_options(/W4 /permissive-)
 else()
-    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
+    add_compile_options(-Wall -Wextra -Wpedantic -Wconversion)
 endif()
 
-# Optional: Debug/Release output directories
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PROJECT_BINARY_DIR}/Debug)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PROJECT_BINARY_DIR}/Release)
+# Source files
+set(SRC_FILES
+    ${CMAKE_SOURCE_DIR}/main.cpp
+    ${CMAKE_SOURCE_DIR}/src/sim/simulator.cpp
+    ${CMAKE_SOURCE_DIR}/src/graph/graph.cpp
+    ${CMAKE_SOURCE_DIR}/src/data/graph_data.cpp
+    ${CMAKE_SOURCE_DIR}/src/data/missile_data.cpp
+    ${CMAKE_SOURCE_DIR}/src/domain/missile.cpp
+    ${CMAKE_SOURCE_DIR}/src/domain/city.cpp
+)
+
+add_executable(BunkerBuster ${SRC_FILES})
+
+# Include directories (project-local headers)
+target_include_directories(BunkerBuster PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
+)
+
+# If you prefer a different binary name, change the target name above or set this
+set_target_properties(BunkerBuster PROPERTIES OUTPUT_NAME "bunker_buster")
+
+# Installation (optional)
+install(TARGETS BunkerBuster RUNTIME DESTINATION bin)
