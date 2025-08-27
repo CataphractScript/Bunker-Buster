@@ -47,7 +47,9 @@ class City {
         std::vector<Missile> get_missiles() const;
         void set_missiles(const std::vector<Missile>& new_missiles);
 
-        std::unordered_map<std::string, int> get_missile_stock() const;
+        // std::unordered_map<std::string, int> get_missile_stock() const;
+        int City::get_missile_count_by_id(const std::string& key) const;
+
         void set_missile_stock(std::unordered_map<std::string, int>& new_missile_stock);
         void set_missile_count(std::string class_id, int number); // Set the missile count for a given missile class
         bool increment_missile_stock(const std::string& class_id);

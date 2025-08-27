@@ -79,7 +79,14 @@ void City::set_missiles(const std::vector<Missile>& new_missiles) {
     missiles = new_missiles;
 }
 
-std::unordered_map<std::string, int> City::get_missile_stock() const { return missile_stock; }
+// std::unordered_map<std::string, int> City::get_missile_stock() const { return missile_stock; }
+int City::get_missile_count_by_id(const std::string& key) const {
+    auto it = missile_stock.find(key);
+    if (it != missile_stock.end()) {
+        return it->second;
+    }
+    return 0; // اگر کلید نبود
+}
 
 void City::set_missile_stock(std::unordered_map<std::string, int>& new_missile_stock) { missile_stock = new_missile_stock; }
 
