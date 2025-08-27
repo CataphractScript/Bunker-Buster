@@ -2,6 +2,7 @@
 
 #include "missile.hpp"
 
+#include <vector>
 #include <string>
 #include <utility>
 #include <unordered_map>
@@ -49,8 +50,8 @@ class City {
         std::unordered_map<std::string, int> get_missile_stock() const;
         void set_missile_stock(std::unordered_map<std::string, int>& new_missile_stock);
         void set_missile_count(std::string class_id, int number); // Set the missile count for a given missile class
-        void missile_stock_increment(std::string class_id);
-        void missile_stock_decrement(std::string class_id);
+        bool increment_missile_stock(const std::string& class_id);
+        bool decrement_missile_stock(const std::string& class_id);
 
         int get_missile_count() const;
 };

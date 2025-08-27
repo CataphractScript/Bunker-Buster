@@ -1,6 +1,7 @@
 #include "../../include/domain/city.hpp"
 #include "../../include/domain/missile.hpp"
 
+#include <iostream>
 #include <algorithm>
 #include <cctype>
 #include <vector>
@@ -87,8 +88,30 @@ void City::set_missile_count(std::string class_id, int number) {
     missile_count += number;
 }
 
-void City::missile_stock_increment(std::string class_id) { missile_stock[class_id]++; }
+bool City::increment_missile_stock(const std::string& class_id) {
+    auto it = missile_stock.find(class_id);
+    if (it == missile_stock.end()) {
+        std::cerr << "Error: missile class not found: " << class_id << "\n";
+        return false;
+    }
+    ++it->second;
+    ++missile_count;
+    return true;
+}
 
-void City::missile_stock_decrement(std::string class_id) { missile_stock[class_id]--; }
+bool City::decrement_missile_stock(const std::string& class_id) {
+    auto it = missile_stock.find(class_id);
+    if (it == missile_stock.end()) {
+        std::cerr << "Error: missile class not found: " << class_id << "\n";
+        return false;
+    }
+    if (it->second <= 0) {
+        std::cerr << "Error: missile stock empty for class: " << class_id << "\n";
+        return false;
+    }
+    --it->second;
+    if (missile_count > 0) --missile_count;
+    return true;
+}
 
 int City::get_missile_count() const { return missile_count; }
