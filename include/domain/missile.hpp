@@ -1,5 +1,4 @@
-#ifndef MISSILE_HPP
-#define MISSILE_HPP
+#pragma once
 
 #include <string>
 
@@ -41,5 +40,3 @@ private:
     int damage;                // inflicted damage on a successful hit
     std::string class_id;      // classification (A, B, C, D, ...)
 };
-
-#endif // MISSILE_HPP
