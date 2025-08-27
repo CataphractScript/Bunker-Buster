@@ -67,12 +67,12 @@ Bunker-Buster/
 From the project root (the folder that contains `main.cpp` and `src/`):
 
 ```bash
-g++ -std=c++17 -Iinclude main.cpp main.cpp src/data/graph_data.cpp src/data/missile_data.cpp src/domain/city.cpp src/domain/missile.cpp src/graph/graph.cpp src/sim/simulator.cpp -o bunker-buster
+g++ -std=c++17 -Iinclude main.cpp main.cpp src/data/graph_data.cpp src/data/missile_data.cpp src/domain/city.cpp src/domain/missile.cpp src/graph/graph.cpp src/sim/simulator.cpp -o bunker_buster.exe
 ```
 
 > If your shell supports globs you can also run:
 > ```bash
-> g++ -std=c++17 -Iinclude main.cpp src/**/*.cpp -o bunker-buster
+> g++ -std=c++17 -Iinclude main.cpp src/**/*.cpp -o bunker_buster.exe
 > ```
 
 ### Option B — Using a simple CMakeLists.txt (recommended for larger development)
