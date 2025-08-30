@@ -223,7 +223,7 @@ void Simulator::scenario_2()
 
                 while (true)
                 {                 
-                    // Candidate cities for the missile's next move (Cities that don't have spies(ID, distance to start city, distance to enemy city), Cities that have spies(ID, distance to start city, distance to enemy city))
+                    // Candidate cities for the missile's next move (Cities that don't have spies(ID, distance to current city, distance to enemy city), Cities that have spies(ID, distance to start city, distance to enemy city))
                     std::pair<std::vector<std::tuple<int, double, double>>, std::vector<std::tuple<int, double, double>>> candidates = {};
 
                     for (size_t i = 0; i < graph.city_count(); i++)
@@ -272,6 +272,7 @@ void Simulator::scenario_2()
                     // Proceed only if the missile still has remaining fuel
                     if (fuel > 0)
                     {
+                        // Attempt to add a new city to the path
                         if (!candidates.first.empty() && std::find(passed_cities.begin(), passed_cities.end(), std::get<0>(candidates.first.front())) == passed_cities.end())
                         {
                             current_city = std::get<0>(candidates.first.front());
@@ -300,8 +301,6 @@ void Simulator::scenario_2()
 
                 if (graph.get_city(std::get<0>(final_candidate)).get_defense_count() > 0)
                 {
-                    std::cout << "cgheck11" << std::endl;
-
                     if (spies_count >= 4)
                     {
                         graph.set_missile_count(a, "A1", 0);
@@ -323,14 +322,14 @@ void Simulator::scenario_2()
                     }
                     total_damage += (graph.get_city(a).get_missile_count_by_id("A1") * 100) + (graph.get_city(a).get_missile_count_by_id("A2") * 130) + (graph.get_city(a).get_missile_count_by_id("A3") * 25);
 
-                    break;
+                    continue;
                 }
                 else
                 {
                     paths.push_back(path);
                     total_damage += (graph.get_city(a).get_missile_count_by_id("A1") * 100) + (graph.get_city(a).get_missile_count_by_id("A2") * 130) + (graph.get_city(a).get_missile_count_by_id("A3") * 25);
 
-                    break;
+                    continue;
                 }
             }
             else
@@ -509,7 +508,6 @@ void Simulator::scenario_4()
 {
     std::vector<int> friendly_cities = graph.get_friendly_city_ids();
     std::vector<int> enemy_cities = graph.get_enemy_city_ids();
-    std::vector<std::vector<int>> paths;
 
     for (const int &fc : friendly_cities)
     {
@@ -568,6 +566,169 @@ void Simulator::scenario_4()
                     continue;
                 }
             }
+
+            // Minimum missile range: missile_min_range
+            if (closest_enemy_city.second < missile_min_range)
+            {
+                int current_city = fc;
+                std::vector<int> path;
+
+                // Add the starting city to the path
+                path.push_back(fc);
+
+                // Number of spies encountered along the path
+                int spies_count = 0;
+
+                // missiles fuels
+                std::unordered_map<std::string, double> missiles_fuels = {
+                    {"A", 2500},
+                    {"B", 5000},
+                    {"C", 2900},
+                    {"C1", 3000}
+                };
+
+                // enemy city
+                std::tuple<int, double, double> final_candidate = {};
+
+                // cities which missiles passed
+                std::vector<int> passed_cities;
+                passed_cities.push_back(fc);
+
+                while (true)
+                {               
+                    // Candidate cities for the missile's next move (Cities that don't have spies(ID, distance to current city, distance to enemy city), Cities that have spies(ID, distance to start city, distance to enemy city))
+                    std::pair<std::vector<std::tuple<int, double, double>>, std::vector<std::tuple<int, double, double>>> candidates = {};
+
+                    for (size_t i = 0; i < graph.city_count(); i++)
+                    {
+                        // Enemy city located west of the current city, within the uncontrolled range of Class A missiles (main conditions)
+                        if (graph.get_city(i).get_coordinates().first < graph.get_city(current_city).get_coordinates().first &&
+                            graph.get_city(i).get_coordinates().second < graph.get_city(current_city).get_coordinates().second &&
+                            graph.distance(current_city, i) < double(500) && i != current_city && graph.distance(i, closest_enemy_city.first) <= graph.distance(current_city, closest_enemy_city.first) &&
+                            std::find(passed_cities.begin(), passed_cities.end(), i) == passed_cities.end())
+                        {
+                            // Check if the current city is not an enemy city
+                            if (graph.get_city(i).get_city_status_int() != 3)
+                            {
+                                if (!graph.get_city(i).get_has_spy())
+                                {
+                                    candidates.first.push_back({i, graph.distance(current_city, i), graph.distance(closest_enemy_city.first, i)});
+                                }
+                                else
+                                {
+                                    candidates.second.push_back({i, graph.distance(current_city, i), graph.distance(closest_enemy_city.first, i)});
+                                }                                
+                            }
+                            else
+                            {
+                                candidates = {};
+                                final_candidate = {i, graph.distance(current_city, i), graph.distance(closest_enemy_city.first, i)};
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (candidates != std::pair<std::vector<std::tuple<int, double, double>>, std::vector<std::tuple<int, double, double>>>{} && final_candidate == std::tuple<int, double, double>{})
+                    {                        
+                        // Sort candidate cities in ascending order of distance
+                        std::sort(candidates.first.begin(), candidates.first.end(), [](const std::tuple<int, double, double> &a, const std::tuple<int, double, double> &b)
+                                { return std::get<2>(a) < std::get<2>(b); });
+                        std::sort(candidates.second.begin(), candidates.second.end(), [](const std::tuple<int, double, double> &a, const std::tuple<int, double, double> &b)
+                                { return std::get<2>(a) < std::get<2>(b); });
+                    }
+                    else 
+                    {
+                        path.push_back(std::get<0>(final_candidate));
+                        break;
+                    }
+
+                    // Attempt to add a new city to the path
+                    if (!candidates.first.empty() && std::find(passed_cities.begin(), passed_cities.end(), std::get<0>(candidates.first.front())) == passed_cities.end())
+                    {
+                        current_city = std::get<0>(candidates.first.front());
+                        path.push_back(std::get<0>(candidates.first.front()));
+                        passed_cities.push_back(std::get<0>(candidates.first.front()));
+
+                        // Update remaining fuel for each missile type.
+                        for (const std::string &key : {"A", "B", "C", "C1"})
+                        {
+                            missiles_fuels[key] -= std::get<1>(candidates.first.front());
+                            if (missiles_fuels[key] > 0)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                graph.set_missile_count(fc, key, 0);
+                            }
+                        }  
+
+                        continue;
+                    }
+                    else if (!candidates.second.empty() && std::find(passed_cities.begin(), passed_cities.end(), std::get<0>(candidates.second.front())) == passed_cities.end())
+                    {
+                        spies_count++;
+                        current_city = std::get<0>(candidates.second.front());
+                        path.push_back(std::get<0>(candidates.second.front()));
+                        passed_cities.push_back(std::get<0>(candidates.second.front()));
+
+                        for (const std::string &key : {"A", "B", "C", "C1"})
+                        {
+                            missiles_fuels[key] -= std::get<1>(candidates.second.front());
+                            if (missiles_fuels[key] > 0)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                graph.set_missile_count(fc, key, 0);
+                            }
+                        }    
+
+                        continue;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }                
+                
+                // for (const std::string &cls : {"A1", "A2", "A3", "B1", "B2", "C", "C1"})
+                // {
+                //     if (graph.get_city(std::get<0>(final_candidate)).get_defense_count() > spies_count)
+                //     {
+                //         graph.set_missile_count(fc, cls, 0);
+                //     }
+                // }
+
+                if (graph.get_city(fc).get_missile_count_by_id("A1") +
+                    graph.get_city(fc).get_missile_count_by_id("A2") +
+                    graph.get_city(fc).get_missile_count_by_id("A3") +
+                    graph.get_city(fc).get_missile_count_by_id("B1") +
+                    graph.get_city(fc).get_missile_count_by_id("A2") +
+                    graph.get_city(fc).get_missile_count_by_id("C") +
+                    graph.get_city(fc).get_missile_count_by_id("C1") != 0)
+                {
+                    paths.push_back(path);
+                    total_damage += (graph.get_city(fc).get_missile_count_by_id("A1") * 100) +
+                                    (graph.get_city(fc).get_missile_count_by_id("A2") * 130) +
+                                    (graph.get_city(fc).get_missile_count_by_id("A3") * 25) +
+                                    (graph.get_city(fc).get_missile_count_by_id("B1") * 90) +
+                                    (graph.get_city(fc).get_missile_count_by_id("B2") * 300) +
+                                    (graph.get_city(fc).get_missile_count_by_id("C") * 10) +
+                                    (graph.get_city(fc).get_missile_count_by_id("C1") * 110);
+
+                    continue;
+                }
+            }
+            else
+            {
+                continue;
+            }
+        }
+        else
+        {
+            continue;
         }
     }
 }
