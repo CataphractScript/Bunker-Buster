@@ -1,10 +1,8 @@
-// simulation.hpp
-#ifndef SIMULATION_HPP
-#define SIMULATION_HPP
+#pragma once
 
 #include "../graph/graph.hpp"
 #include "../domain/missile.hpp"
-#include "../../include/data/missile_data.hpp"
+#include "../data/missile_data.hpp"
 
 #include <iostream>
 
@@ -34,7 +32,5 @@ public:
     void scenario_2();
     void scenario_3(std::unordered_map<std::string, int>);
     void scenario_4(); // abc_cities: vector of city IDs containing missiles of Class A, B, or C
-    // Add more scenarios as needed
+    // ...
 };
-
-#endif // SIMULATION_HPP

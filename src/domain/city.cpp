@@ -10,7 +10,7 @@
 City::City() : country(""), coordinates({ 0,0 }), city_status(Neutral), has_spy(false), defense_count(0), missiles(), missile_stock(), missile_count(0) {}
 
 // Constructor with validation via setters
-City::City(const std::string& country_in, const std::pair<int, int>& coord, const std::string& status, bool spy, int def, const std::vector<Missile>& missile_in, std::unordered_map<std::string, int> missile_stock_in) {
+City::City(const std::string& country_in, const std::pair<int, int>& coord, const std::string& status, bool spy, int def, const std::vector<Missile>& missile_in, std::unordered_map<std::string, int> missile_stock_in, int missile_count_in) {
     set_country(country_in);
     set_coordinates(coord);
     set_city_status(status);
@@ -18,10 +18,7 @@ City::City(const std::string& country_in, const std::pair<int, int>& coord, cons
     set_defense_count(def);
     set_missiles(missile_in);
     set_missile_stock(missile_stock_in);
-
-    for (const auto& pair : missile_stock_in) {
-        missile_count += pair.second;
-    }
+    missile_count = missile_count_in;
 }
 
 // Implement getters and setters
@@ -85,7 +82,7 @@ int City::get_missile_count_by_id(const std::string& key) const {
     if (it != missile_stock.end()) {
         return it->second;
     }
-    return 0; // اگر کلید نبود
+    return 0;
 }
 
 void City::set_missile_stock(std::unordered_map<std::string, int>& new_missile_stock) { missile_stock = new_missile_stock; }

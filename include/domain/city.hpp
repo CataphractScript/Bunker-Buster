@@ -25,7 +25,7 @@ class City {
         City();
 
         // Constructor with parameters
-        City(const std::string& country_in, const std::pair<int, int>& coord, const std::string& status, bool spy, int def, const std::vector<Missile>& missile_in, std::unordered_map<std::string, int> missile_stock_in);
+        City(const std::string& country_in, const std::pair<int, int>& coord, const std::string& status, bool spy, int def, const std::vector<Missile>& missile_in, std::unordered_map<std::string, int> missile_stock_in, int missile_count_in);
 
         // Getters and setters
         std::string get_country() const;
